@@ -3,6 +3,8 @@ import { Table } from 'react-bootstrap';
 import axios from 'axios';
 import { useUser } from './../../context/UserContext';
 
+const ApiBaseUrl = process.env.REACT_APP_BASE_URL
+
 const DueToday = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -17,7 +19,7 @@ const DueToday = () => {
   const fetchDueTodayTickets = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`https://localhost:7217/api/Tickets?includeArchived=false`);
+      const response = await axios.get(`${ApiBaseUrl}/api/Tickets?includeArchived=false`);
       // Filter tickets where assigneeEmail matches the logged-in user's email
       const filteredTickets = response.data.filter(ticket => ticket.assigneeEmail === user.email);
       setTickets(filteredTickets);

@@ -2,14 +2,14 @@ import React, { useState, useEffect }  from 'react';
 import {  Spinner } from 'react-bootstrap'
 import LowPriorityTable from './LowPriorityTable';
 
-
+const ApiBaseUrl = process.env.REACT_APP_BASE_URL
 const LowPriority = () => {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
   
     useEffect(() => {
       // Fetch user data from the API
-      fetch('https://localhost:7217/api/Tickets/priority/Low')
+      fetch(`${ApiBaseUrl}/api/Tickets/priority/Low`)
         .then((res) => {
           if (!res.ok) {
             throw new Error(`HTTP error! Status: ${res.status}`);
@@ -27,7 +27,7 @@ const LowPriority = () => {
         const fetchTickets = async () => {
             try {
               // Fetch all tickets
-              const response = await fetch('https://localhost:7217/api/Tickets');
+              const response = await fetch(`${ApiBaseUrl}/api/Tickets`);
               const data = await response.json();
       
               // Filter high priority tickets

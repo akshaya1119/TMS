@@ -10,12 +10,12 @@ const Permission = () => {
   const [userDepartment, setUserDepartment] = useState('');
   const [showPermissionPage, setShowPermissionPage] = useState(false);
 
-
+  const ApiBaseUrl = process.env.REACT_APP_BASE_URL
   useEffect(() => {
     // Fetch user data from your API and set the users state
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('https://localhost:7217/api/Users'); // Replace this with your API endpoint
+        const response = await axios.get(`${ApiBaseUrl}/api/Users`); // Replace this with your API endpoint
         setUsers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);

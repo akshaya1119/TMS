@@ -113,6 +113,13 @@ const _nav = [
     icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
     
   },
+
+//   {
+//     component:CNavItem,
+//     name: 'Chats',
+//     to: '/Chats',
+//     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
+// },
 ]
 
 export default _nav

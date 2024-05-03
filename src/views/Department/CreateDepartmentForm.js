@@ -36,6 +36,8 @@ const CreateDepartmentForm = ({ newDepartment, setNewDepartment, handleCreateDep
     </Collapse> 
   ); 
 }; 
+
+
  
 CreateDepartmentForm.propTypes = { // Define prop types 
   newDepartment: PropTypes.string.isRequired, 

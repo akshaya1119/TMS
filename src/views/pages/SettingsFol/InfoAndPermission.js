@@ -80,7 +80,7 @@ const InfoAndPermission = () => {
             }
 
             const data = await response.json();
-            const totalAssignedCount = data.activeCount + data.pendingCount + data.selfassignedCount + data.completedCount;
+            const totalAssignedCount = data?.openCount + data.pendingCount + data.selfassignedCount + data.completedCount;
             setAssignedTicketsCount(totalAssignedCount);
             console.log('Assigned Tickets Count:', totalAssignedCount);
         } catch (error) {

@@ -11,6 +11,8 @@ import CreateTicketForm from './CreateTicketForm';
 import CreateProjectForm from './CreateProjForm';
 import ProjectType from './ProjectType';
 import Tickettype from './TicketType';
+import Tabs from 'react-bootstrap/Tabs';
+
 
 
 const Departmentapi = process.env.REACT_APP_API_DEPARTMENTS;
@@ -21,7 +23,7 @@ const Department = () => {
     const [activeTab, setActiveTab] = useState('departments');
     const [departments, setDepartments] = useState([]);
     const [newDepartment, setNewDepartment] = useState('');
-    const [openCreateDepartment, setOpenCreateDepartment] = useState(true);
+    const [openCreateDepartment, setOpenCreateDepartment] = useState(false);
     const [roles, setRoles] = useState([]);
     const [newRoles, setNewRoles] = useState('');
     const [openCreateRole, setOpenCreateRole] = useState(false);
@@ -34,6 +36,7 @@ const Department = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [editItem, setEditItem] = useState(null);
     const [errorMessage, setErrorMessage] = useState('')
+
 
     // Fetch departments from the API when the component mounts 
     useEffect(() => {
@@ -281,212 +284,219 @@ const Department = () => {
 
     return (
         <PermissionChecker>
-            {({hasPermission}) => (
-        <Container>
-            <Row>
-                {/* Department List */}
-                <Col md={12}>
-                    <div className='row mb-3 justify-content-between display flex'>
+            {({ hasPermission }) => (
+                <Container>
+                    <Row>
+                        {/* Department List */}
+                        <Col md={12}>
+                            <div className='row mb-3 justify-content-between display flex'>
 
-                        <h4 className='col-sm-3'>Categories</h4>
-                        <Form className='col-sm-3'>
-                            <Form.Control
-                                type="text"
-                                placeholder="Search"
-                                value={searchQuery}
-                                onChange={handleSearch}
-                            />
-                        </Form>
-
-
-                    </div>
-                    <div className="col-md-6">
-
-
-                        <div className="tab-container ">
-                            {hasPermission (3,'canViewOnly') && <><input type="radio" name="tab" id="tab1" className="tab tab--1" checked={activeTab === 'departments'} onChange={() => setActiveTab('departments')} />
-                            <label className="tab_label" htmlFor="tab1">Departments</label></>}
-
-                            {hasPermission (4,'canViewOnly') && <><input type="radio" name="tab" id="tab2" className="tab tab--2" checked={activeTab === 'roles'} onChange={() => setActiveTab('roles')} />
-                            <label className="tab_label" htmlFor="tab2">Roles</label></>}
-
-                            {hasPermission (5,'canViewOnly') && <><input type="radio" name="tab" id="tab3" className="tab tab--3" checked={activeTab === 'ticketType'} onChange={() => setActiveTab('ticketType')} />
-                            <label className="tab_label" htmlFor="tab3">Ticket Types</label></>}
-
-                            {hasPermission (6,'canViewOnly') && <><input type="radio" name="tab" id="tab4" className="tab tab--4" checked={activeTab === 'project'} onChange={() => setActiveTab('project')} />
-                            <label className="tab_label" htmlFor="tab4">Projects</label></>}
-
-                            <div className="indicator"></div>
-                        </div>
-                    </div>
-                    <Container>
-                        {/* Other JSX code */}
-                        {activeTab === 'departments' && (
-                            <Row>
-                                
-                                {hasPermission (3,'canViewOnly') && <Col md={6}>
-
-                                    <DepartmentList
-                                        departments={departments}
-                                        handleEdit={handleEdit}
-                                        handleEditSubmit={handleEditSubmit}
-                                        newDepartment={newDepartment}
-                                        setNewDepartment={setNewDepartment}
-                                        editItem={editItem}
-                                        searchQuery={searchQuery} // Pass search query as prop 
-
+                                <h4 className='col-sm-3'>Categories</h4>
+                                <Form className='col-sm-3'>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Search"
+                                        value={searchQuery}
+                                        onChange={handleSearch}
                                     />
-                                </Col>}
-                                {hasPermission (3,'canAddOnly') &&<Col md={6} className="position-relative">
-                                    <Button
-                                        onClick={() => setOpenCreateDepartment(!openCreateDepartment)}
-                                        aria-controls="create-department-collapse"
-                                        aria-expanded={openCreateDepartment}
-                                        className="mb-3 position-absolute top-0 end-0"
-                                    >
-                                        Create
-                                    </Button>
-                                    <CreateDepartmentForm
-                                        newDepartment={newDepartment}
-                                        setNewDepartment={setNewDepartment}
-                                        handleCreateDepartment={handleCreateDepartment}
-                                        openCreateDepartment={openCreateDepartment} // Pass openCreateDepartment as a prop 
-                                    />
-                                </Col>}
-                            </Row>
-                        )}
-                        {activeTab === 'roles' && (
-                            <Row>
-                                 {hasPermission (4,'canViewOnly') &&<Col md={6}>
+                                </Form>
 
-                                    <Roles
-                                        roles={roles}
-                                        handleEdit={handleEdit}
-                                        handleEditSubmitRole={handleEditSubmitRole}
-                                        newRoles={newRoles}
-                                        setNewRoles={setNewRoles}
-                                        editItem={editItem}
 
-                                        searchQuery={searchQuery}
-                                    />
-                                </Col>}
-                                {hasPermission (4,'canAddOnly') &&<Col md={6} className="position-relative">
-                                    <Button
-                                        onClick={() => setOpenCreateRole(!openCreateRole)}
-                                        aria-controls="create-role-collapse"
-                                        aria-expanded={openCreateRole}
-                                        className="mb-3 position-absolute top-0 end-0"
-                                    >
-                                        Create
-                                    </Button>
-                                    <CreateRoleForm
-                                        newRoles={newRoles}
-                                        setNewRoles={setNewRoles}
-                                        handleCreateRole={handleCreateRole}
-                                        openCreateRole={openCreateRole}
-                                    />
-                                </Col>}
-                            </Row>
-                        )}
-                        {activeTab === 'ticketType' && (
-                            <Row>
-                                 {hasPermission (5,'canViewOnly') &&<Col md={6}>
+                            </div>
+                            <div className="col-md-6">
 
-                                    <Tickettype
-                                        ticketType={ticketType}
-                                        handleEdit={handleEdit}
-                                        handleEditSubmitTicketType={handleEditSubmitTicketType}
-                                        newTicketType={newTicketType}
-                                        setNewTicketType={setNewTicketType}
-                                        editItem={editItem}
 
-                                        searchQuery={searchQuery}
-                                    />
-                                </Col>}
-                                {hasPermission (5,'canAddOnly') &&<Col md={6} className="position-relative">
-                                    <Button
-                                        onClick={() => setOpenTicketType(!openTicketType)}
-                                        aria-controls="create-tickettype-collapse"
-                                        aria-expanded={openTicketType}
-                                        className="mb-3 position-absolute top-0 end-0"
-                                    >
-                                        Create
-                                    </Button>
-                                    <CreateTicketForm
-                                        newTicketType={newTicketType}
-                                        setNewTicketType={setNewTicketType}
-                                        handleCreateTicketType={handleCreateTicketType}
-                                        openTicketType={openTicketType}
-                                    />
-                                </Col>}
-                            </Row>
-                        )}
-                        {activeTab === 'project' && (
-                            <Row>
-                                 {hasPermission (6,'canViewOnly') &&<Col md={6}>
+                                <Tabs defaultActiveKey="departments" id="tab-example" className="mb-3" onSelect={(key) => setActiveTab(key)} justify>
+                                    {hasPermission(3, 'canViewOnly') && (
+                                        <Tab eventKey="departments" title="Departments">
 
-                                    <ProjectType
-                                        project={project}
-                                        handleEdit={handleEdit}
-                                        handleEditSubmitProject={handleEditSubmitProject}
-                                        newProject={newProject}
-                                        setNewProject={setNewProject}
-                                        editItem={editItem}
+                                        </Tab>
+                                    )}
+                                    {hasPermission(4, 'canViewOnly') && (
+                                        <Tab eventKey="roles" title="Roles">
 
-                                        searchQuery={searchQuery}
-                                    />
-                                </Col>}
-                                {hasPermission (6,'canAddOnly') &&<Col md={6} className="position-relative">
-                                    <Button
-                                        onClick={() => setOpenProject(!openProject)}
-                                        aria-controls="create-role-collapse"
-                                        aria-expanded={openProject}
-                                        className="mb-3 position-absolute top-0 end-0"
-                                    >
-                                        Create
-                                    </Button>
-                                    <CreateProjectForm
-                                        newProject={newProject}
-                                        setNewProject={setNewProject}
-                                        handleCreateProjectType={handleCreateProjectType}
-                                        openProject={openProject}
-                                    />
-                                </Col>}
-                            </Row>
-                        )}
+                                        </Tab>
+                                    )}
+                                    {hasPermission(5, 'canViewOnly') && (
+                                        <Tab eventKey="ticketType" title="Ticket Types">
 
-                    </Container>
-                    <Tab.Content>
-                        <Tab.Pane eventKey="departments">
-                            <Table responsive hover bordered striped>
+                                        </Tab>
+                                    )}
+                                    {hasPermission(6, 'canViewOnly') && (
+                                        <Tab eventKey="project" title="Projects">
 
-                            </Table>
-                        </Tab.Pane>
+                                        </Tab>
+                                    )}
+                                </Tabs>
+                            </div>
+                            <Container>
+                                {/* Other JSX code */}
+                                {activeTab === 'departments' && (
+                                    <Row>
 
-                        <Tab.Pane eventKey="roles">
-                            <Table responsive hover bordered striped>
+                                        {hasPermission(3, 'canViewOnly') && <Col md={6}>
 
-                            </Table>
-                        </Tab.Pane>
+                                            <DepartmentList
+                                                departments={departments}
+                                                handleEdit={handleEdit}
+                                                handleEditSubmit={handleEditSubmit}
+                                                newDepartment={newDepartment}
+                                                setNewDepartment={setNewDepartment}
+                                                editItem={editItem}
+                                                searchQuery={searchQuery} // Pass search query as prop 
 
-                        <Tab.Pane eventKey="ticketType">
-                            <Table responsive hover bordered striped>
+                                            />
+                                        </Col>}
+                                        {hasPermission(3, 'canAddOnly') && <Col md={6} className="position-relative">
+                                            <Button
+                                                onClick={() => setOpenCreateDepartment(!openCreateDepartment)}
+                                                aria-controls="create-department-collapse"
+                                                aria-expanded={openCreateDepartment}
+                                                className="mb-3 position-absolute top-0 end-0"
+                                            >
+                                                Create
+                                            </Button>
+                                            <CreateDepartmentForm
+                                                newDepartment={newDepartment}
+                                                setNewDepartment={setNewDepartment}
+                                                handleCreateDepartment={handleCreateDepartment}
+                                                openCreateDepartment={openCreateDepartment} // Pass openCreateDepartment as a prop 
+                                            />
+                                        </Col>}
+                                    </Row>
+                                )}
+                                {activeTab === 'roles' && (
+                                    <Row>
+                                        {hasPermission(4, 'canViewOnly') && <Col md={6}>
 
-                            </Table>
-                        </Tab.Pane>
+                                            <Roles
+                                                roles={roles}
+                                                handleEdit={handleEdit}
+                                                handleEditSubmitRole={handleEditSubmitRole}
+                                                newRoles={newRoles}
+                                                setNewRoles={setNewRoles}
+                                                editItem={editItem}
 
-                        <Tab.Pane eventKey="project">
-                            <Table responsive hover bordered striped>
-                                {/* Render project data here */}
+                                                searchQuery={searchQuery}
+                                            />
+                                        </Col>}
+                                        {hasPermission(4, 'canAddOnly') && <Col md={6} className="position-relative">
+                                            <Button
+                                                onClick={() => setOpenCreateRole(!openCreateRole)}
+                                                aria-controls="create-role-collapse"
+                                                aria-expanded={openCreateRole}
+                                                className="mb-3 position-absolute top-0 end-0"
+                                            >
+                                                Create
+                                            </Button>
+                                            <CreateRoleForm
+                                                newRoles={newRoles}
+                                                setNewRoles={setNewRoles}
+                                                handleCreateRole={handleCreateRole}
+                                                openCreateRole={openCreateRole}
+                                            />
+                                        </Col>}
+                                    </Row>
+                                )}
+                                {activeTab === 'ticketType' && (
+                                    <Row>
+                                        {hasPermission(5, 'canViewOnly') && <Col md={6}>
 
-                            </Table>
-                        </Tab.Pane>
-                    </Tab.Content>
+                                            <Tickettype
+                                                ticketType={ticketType}
+                                                handleEdit={handleEdit}
+                                                handleEditSubmitTicketType={handleEditSubmitTicketType}
+                                                newTicketType={newTicketType}
+                                                setNewTicketType={setNewTicketType}
+                                                editItem={editItem}
 
-                </Col>
-            </Row>
-        </Container>
-        )}
+                                                searchQuery={searchQuery}
+                                            />
+                                        </Col>}
+                                        {hasPermission(5, 'canAddOnly') && <Col md={6} className="position-relative">
+                                            <Button
+                                                onClick={() => setOpenTicketType(!openTicketType)}
+                                                aria-controls="create-tickettype-collapse"
+                                                aria-expanded={openTicketType}
+                                                className="mb-3 position-absolute top-0 end-0"
+                                            >
+                                                Create
+                                            </Button>
+                                            <CreateTicketForm
+                                                newTicketType={newTicketType}
+                                                setNewTicketType={setNewTicketType}
+                                                handleCreateTicketType={handleCreateTicketType}
+                                                openTicketType={openTicketType}
+                                            />
+                                        </Col>}
+                                    </Row>
+                                )}
+                                {activeTab === 'project' && (
+                                    <Row>
+                                        {hasPermission(6, 'canViewOnly') && <Col md={6}>
+
+                                            <ProjectType
+                                                project={project}
+                                                handleEdit={handleEdit}
+                                                handleEditSubmitProject={handleEditSubmitProject}
+                                                newProject={newProject}
+                                                setNewProject={setNewProject}
+                                                editItem={editItem}
+
+                                                searchQuery={searchQuery}
+                                            />
+                                        </Col>}
+                                        {hasPermission(6, 'canAddOnly') && <Col md={6} className="position-relative">
+                                            <Button
+                                                onClick={() => setOpenProject(!openProject)}
+                                                aria-controls="create-role-collapse"
+                                                aria-expanded={openProject}
+                                                className="mb-3 position-absolute top-0 end-0"
+                                            >
+                                                Create
+                                            </Button>
+                                            <CreateProjectForm
+                                                newProject={newProject}
+                                                setNewProject={setNewProject}
+                                                handleCreateProjectType={handleCreateProjectType}
+                                                openProject={openProject}
+                                            />
+                                        </Col>}
+                                    </Row>
+                                )}
+
+                            </Container>
+                            <Tab.Content>
+                                <Tab.Pane eventKey="departments">
+                                    <Table responsive hover bordered striped>
+
+                                    </Table>
+                                </Tab.Pane>
+
+                                <Tab.Pane eventKey="roles">
+                                    <Table responsive hover bordered striped>
+
+                                    </Table>
+                                </Tab.Pane>
+
+                                <Tab.Pane eventKey="ticketType">
+                                    <Table responsive hover bordered striped>
+
+                                    </Table>
+                                </Tab.Pane>
+
+                                <Tab.Pane eventKey="project">
+                                    <Table responsive hover bordered striped>
+                                        {/* Render project data here */}
+
+                                    </Table>
+                                </Tab.Pane>
+                            </Tab.Content>
+
+                        </Col>
+                    </Row>
+                </Container>
+            )}
         </PermissionChecker>
     );
 

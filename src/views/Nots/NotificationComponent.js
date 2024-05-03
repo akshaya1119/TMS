@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'; 
 import * as signalR from '@microsoft/signalr'; 
 
+
+
+const ApiBaseUrl = process.env.REACT_APP_BASE_URL
 const NotificationsComponent = () => { 
     const [notifications, setNotifications] = useState([]); 
 
     useEffect(() => { 
         const connection = new signalR.HubConnectionBuilder() 
-            .withUrl("https://localhost:7217/notificationHub/") 
+            .withUrl(`${ApiBaseUrl}/notificationHub/`) 
             .build(); 
 
         connection.start() 

@@ -2,7 +2,9 @@
 // NotificationService.js
 import { HubConnectionBuilder } from '@microsoft/signalr';
 
-const hubUrl = 'https://localhost:7217/notificationHub/negotiate'; // Update to the correct negotiation endpoint
+
+const ApiBaseUrl = process.env.REACT_APP_BASE_URL
+const hubUrl = `${ApiBaseUrl}/notificationHub/negotiate`; // Update to the correct negotiation endpoint
 
 
 

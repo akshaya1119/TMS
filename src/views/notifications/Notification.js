@@ -4,6 +4,8 @@ import {cilEnvelopeOpen} from '@coreui/icons';
 import { useUser } from './../../context/UserContext';
 import axios from "axios";
 
+
+const ApiBaseUrl = process.env.REACT_APP_BASE_URL
 const Notification = () => {
   const{user}=useUser();
   // State to store the new ticket count
@@ -13,7 +15,7 @@ const Notification = () => {
   // Function to fetch the new ticket count from the backend
   const fetchNewTicketsCount = async () => {
     try {
-      const response = await fetch(`https://localhost:7217/api/Tickets/new-tickets-count?email=${user.email}`);
+      const response = await fetch(`${ApiBaseUrl}/api/Tickets/new-tickets-count?email=${user.email}`);
       const data = await response.json();
       setNewTicketsCount(data.count); // Update the new ticket count
     } catch (error) {

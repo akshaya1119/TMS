@@ -8,6 +8,7 @@ import addNotification from "react-push-notification";
 import greentick from './images/greentick.jpg';
 // import NotificationService from '../Nots/NotificationService';
 import * as signalR from '@microsoft/signalr'; // Import SignalR
+import { io } from "socket.io-client";
 
 const dashboardapi= process.env.REACT_APP_MY_SERVER;
 const userapi = process.env.REACT_APP_API_USERS;
@@ -71,6 +72,10 @@ const AddTicket = () => {
   //   };
   // }, []);
 
+
+  // useEffect (() => {
+  //   const socket = io('http://localhost:3000');
+  // }, [])
 
   useEffect(() => {
     async function fetchAssignee() {

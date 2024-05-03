@@ -5,6 +5,8 @@ import { useUser } from './../../../context/UserContext';
 import axios from 'axios';
 import { useSecurity } from './../../../context/Security';
 
+
+const ApiBaseUrl = process.env.REACT_APP_BASE_URL
 const UpdatePermissionPage = () => {
     const { decrypt } = useSecurity();
     const [permissions, setPermissions] = useState([]);
@@ -20,7 +22,7 @@ const UpdatePermissionPage = () => {
     useEffect(() => {
         const fetchPermissions = async () => {
             try {
-                const response = await axios.get(`https://localhost:7217/api/Permission/ByUser/${user?.userId}`);
+                const response = await axios.get(`${ApiBaseUrl}/api/Permission/ByUser/${user?.userId}`);
                 setPermissions(response.data);
             } catch (error) {
                 console.error('Error fetching permissions:', error);
@@ -30,7 +32,7 @@ const UpdatePermissionPage = () => {
 
         const fetchModules = async () => {
             try {
-                const response = await axios.get('https://localhost:7217/api/Module');
+                const response = await axios.get(`${ApiBaseUrl}/api/Module`);
                 setModules(response.data);
             } catch (error) {
                 console.error('Error fetching modules:', error);
