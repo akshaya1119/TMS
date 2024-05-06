@@ -135,7 +135,7 @@ const TicketsTable = ({ tickets, hasPermission, setTickets }) => {
               <td>{ticket.ticketType}</td>
               <td>{new Date(ticket.dueDate).toLocaleString()}</td>
               <td>{ticket.department}</td>
-              <td>{ticket.projectType}</td>
+              <td>{ticket.project}</td>
               <td>
                 <div className="d-flex gap-3 align-items-center">
                   {hasPermission(2, 'canUpdateOnly') && (

@@ -23,13 +23,13 @@ const Tickettype = ({ ticketType, handleEdit, handleEditSubmitTicketType, newTic
                                         ticket.ticketType?.toLowerCase().includes(searchQuery.toLowerCase()) 
                                     ) 
                                     .map((ticket) => ( 
-                                        <tr key={ticket.id} className="table-row mt-1"> 
+                                        <tr key={ticket.ticketTypeId} className="table-row mt-1"> 
  
-                                            <td className="col col-3" data-label="SNo.">{ticket.id}</td> 
+                                            <td className="col col-3" data-label="SNo.">{ticket.ticketTypeId}</td> 
                                             <td className="col col-6" data-label="TicketType">{ticket.ticketType}</td> 
                                             <td className="col col-3" data-label="Actions"> 
-                                                {editItem && editItem.id === ticket.id ? ( 
-                                                    <Form onSubmit={(e) => handleEditSubmitTicketType(e, ticket.id, newTicketType)}> 
+                                                {editItem && editItem.ticketTypeId === ticket.ticketTypeId ? ( 
+                                                    <Form onSubmit={(e) => handleEditSubmitTicketType(e, ticket.ticketTypeId, newTicketType)}> 
                                                         <input 
                                                             className="form-control" 
                                                             type="text" 

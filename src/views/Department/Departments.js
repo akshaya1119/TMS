@@ -83,13 +83,13 @@ const Department = () => {
         if (updatedValue !== '' && updatedValue !== null && updatedValue !== undefined) {
             try {
                 await axios.put(`${Departmentapi}/${id}`, {
-                    id: id,
+                    departmentId: id,
                     departmentName: updatedValue,
                 });
 
                 setDepartments((prevDepartments) =>
                     prevDepartments.map((dept) =>
-                        dept.id === id ? { ...dept, departmentName: updatedValue } : dept
+                        dept.departmentId === id ? { ...dept, departmentName: updatedValue } : dept
                     )
                 );
             } catch (error) {
@@ -128,13 +128,13 @@ const Department = () => {
         e.preventDefault();
         try {
             await axios.put(`${TicketTypeapi}/${id}`, {
-                id: id,
+                ticketTypeId: id,
                 ticketType: updatedValue,
             });
 
             setTicketTypes((prevTicketTypes) =>
                 prevTicketTypes.map((ticket) =>
-                    ticket.id === id ? { ...ticket, ticketType: updatedValue } : ticket
+                    ticket.ticketTypeId === id ? { ...ticket, ticketType: updatedValue } : ticket
                 )
             );
 
@@ -149,13 +149,13 @@ const Department = () => {
         e.preventDefault();
         try {
             await axios.put(`${ProjectTypepi}/${id}`, {
-                id: id,
+                projectId: id,
                 projectTypes: updatedValue,
             });
 
             setProject((prevProjects) =>
                 prevProjects.map((project) =>
-                    project.id === id ? { ...project, projectTypes: updatedValue } : project
+                    project.projectId === id ? { ...project, projectTypes: updatedValue } : project
                 )
             );
 

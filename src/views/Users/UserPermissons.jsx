@@ -45,6 +45,7 @@ const PermissionPage = () => {
       try {
         const response = await axios.get(moduleapi);
         setModules(response.data);
+        console.log(response.data);
         setModulePermissions(response.data.map(module =>({
           module_Id:module.id,
           can_View:false,

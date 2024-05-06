@@ -41,7 +41,7 @@ const toolbarOptions = [
 const EditTicket = () => {
   const { user } = useUser();
   const { ticketId } = useParams();
-  const {decrypt} = useSecurity(); 
+  const { decrypt } = useSecurity();
   const decryptid = decrypt(ticketId);
   const [formData, setFormData] = useState({
     ticketId: '',
@@ -51,7 +51,7 @@ const EditTicket = () => {
     department: '',
     ticketType: '',
     status: '',
-    projectType: '',
+    project: '',
     dueDate: '',
     description: '',
     assigneeEmail: '',
@@ -88,6 +88,7 @@ const EditTicket = () => {
           axios.get(TicketTypeapi),
         ]);
         setFormData(ticketResponse.data);
+        console.log(ticketResponse.data);
         setOldDetails(ticketResponse.data);
         setComments(commentsResponse.data);
         setAssignees(assigneesResponse.data);
@@ -176,7 +177,7 @@ const EditTicket = () => {
         prev: formData.priority,
         pre: formData.status,
         newp: formData.userPriority,
-        pret: formData.ticketType,
+        pret: formData.ticketTypeId,
         newt: formData.userTicketType,
         newa: formData.userAssigneeEmail,
         news: formData.userStatus,
@@ -246,50 +247,50 @@ const EditTicket = () => {
   const handleMouseEnter = () => {
     setHovered(true);
   };
-  
+
   const handleMouseLeave = () => {
     setHovered(false);
   };
 
- const markAsCompleted = async () => {
-  try {
-    // Send a request to update the ticket status to "Completed"
-    const response = await axios.put(`${markcompleted}/${decryptid}`, {
-      status: 'Completed',
-    });
-
-    console.log('Response:', response);
-
-    // Check if the update was successful
-    if (response.status === 200 || response.status===204) {
-      // Update local state to reflect the new status
-      setFormData((prevData) => ({
-        ...prevData,
+  const markAsCompleted = async () => {
+    try {
+      // Send a request to update the ticket status to "Completed"
+      const response = await axios.put(`${markcompleted}/${decryptid}`, {
         status: 'Completed',
-      }));
-      setMessage('Ticket marked as completed successfully!');
-    } else {
-      setMessage('Error marking ticket as completed. Please try again.');
+      });
+
+      console.log('Response:', response);
+
+      // Check if the update was successful
+      if (response.status === 200 || response.status === 204) {
+        // Update local state to reflect the new status
+        setFormData((prevData) => ({
+          ...prevData,
+          status: 'Completed',
+        }));
+        setMessage('Ticket marked as completed successfully!');
+      } else {
+        setMessage('Error marking ticket as completed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error marking ticket as completed:', error);
+      setMessage('Error marking ticket as completed.');
     }
-  } catch (error) {
-    console.error('Error marking ticket as completed:', error);
-    setMessage('Error marking ticket as completed.');
-  }
-};
+  };
 
   return (
     <div className="container mt-3">
       <div className='d-flex justify-content-between '>
-          <h4>Ticket Section</h4>
-          {user.email === formData.email && (
+        <h4>Ticket Section</h4>
+        {user.email === formData.email && (
           <Button onClick={markAsCompleted} disabled={formData.status === 'Completed'} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             {hovered ? <FontAwesomeIcon icon={faCheck} /> : ' '}
             {formData.status === 'Completed' ? 'Completed' : 'Mark as Completed'}
-           
+
           </Button>
-          )}
+        )}
       </div>
-      
+
       <Row>
         <Col>
           <label htmlFor="email" className="col-form-label text-end">
@@ -325,7 +326,7 @@ const EditTicket = () => {
           </div>
         </Col>
         <Col>
-          <label htmlFor="department" className="col-form-label text-end">
+        <label htmlFor="department" className="col-form-label text-end">
             Department:
           </label>
           <div className="">
@@ -336,21 +337,22 @@ const EditTicket = () => {
               name="department"
               value={formData.department}
               required
+              onChange={handleInputChange}
               disabled
             />
           </div>
         </Col>
         <Col>
-          <label htmlFor="projectType" className="col-form-label text-end">
-            Project Type:
+          <label htmlFor="project" className="col-form-label text-end">
+            Project:
           </label>
           <div className="">
             <input
               type="text"
               className="form-control"
-              id="projectType"
-              name="projectType"
-              value={formData.projectType}
+              id="project"
+              name="project"
+              value={formData.project}
               required
               onChange={handleInputChange}
               disabled
@@ -374,7 +376,7 @@ const EditTicket = () => {
             />
           </div>
         </Col>
-        
+
 
         {/* Attachment Modal */}
         <Modal show={showAttachmentModal} onHide={handleCloseAttachmentModal}>
@@ -408,7 +410,7 @@ const EditTicket = () => {
         </div>
         <div>
           <Button onClick={toggleCollapse}>
-            {collapsed ? <i className="fa-solid fa-angles-right"></i> : <i className="fa-solid fa-angles-left"></i>}
+            {collapsed ? <i className="fa-solid fa-angles-left"></i> : <i className="fa-solid fa-angles-right"></i>}
           </Button>
         </div>
 
@@ -444,14 +446,14 @@ const EditTicket = () => {
                 />
 
                 {/* Show Attachment Button */}
-        {formData.attachment && (
-          <Col>
-            <Button className="mt-3" onClick={handleShowAttachmentModal}>
-              <FontAwesomeIcon icon={faPaperclip} className="me-2" />
-              Show Attachment
-            </Button>
-          </Col>
-        )}
+                {formData.attachment && (
+                  <Col>
+                    <Button className="mt-3" onClick={handleShowAttachmentModal}>
+                      <FontAwesomeIcon icon={faPaperclip} className="me-2" />
+                      Show Attachment
+                    </Button>
+                  </Col>
+                )}
               </div>
             </Col>
             <Col md={5}>
@@ -480,7 +482,7 @@ const EditTicket = () => {
                     <Form.Select value={formData.ticketType} onChange={handleInputChange} name="ticketType" disabled>
                       <option value="">Select Ticket Type</option>
                       {ticketTypes.map((type) => (
-                        <option key={type.id} value={type.ticketType}>
+                        <option key={type.ticketTypeId} value={type.ticketType}>
                           {type.ticketType}
                         </option>
                       ))}
@@ -569,8 +571,9 @@ const EditTicket = () => {
                       <Col sm={8}>
                         <Form.Select value={formData.userTicketType} onChange={handleInputChange} name="userTicketType">
                           <option value="">Select Ticket Type</option>
+                          {console.log(ticketTypes)}
                           {ticketTypes.map((type) => (
-                            <option key={type.id} value={type.ticketType}>
+                            <option key={type.ticketTypeId} value={type.ticketTypeId}>
                               {type.ticketType}
                             </option>
                           ))}

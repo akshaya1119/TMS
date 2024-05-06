@@ -24,13 +24,13 @@ const ProjectType = ({ project, newProject, setNewProject, handleEdit, handleEdi
                                         project.projectTypes?.toLowerCase().includes(searchQuery.toLowerCase()) 
                                     ) 
                                     .map((project) => ( 
-                                        <tr key={project.id} className="table-row mt-1"> 
+                                        <tr key={project.projectId} className="table-row mt-1"> 
  
-                                            <td className="col col-3" data-label="SNo.">{project.id}</td> 
+                                            <td className="col col-3" data-label="SNo.">{project.projectId}</td> 
                                             <td className="col col-6" data-label="Project">{project.projectTypes}</td> 
                                             <td className="col col-3" data-label="Actions"> 
-                                                {editItem && editItem.id === project.id ? ( 
-                                                    <Form onSubmit={(e) => handleEditSubmitProject(e, project.id, newProject)}> 
+                                                {editItem && editItem.projectId === project.projectId ? ( 
+                                                    <Form onSubmit={(e) => handleEditSubmitProject(e, project.projectId, newProject)}> 
                                                         <input 
                                                             className="form-control" 
                                                             type="text" 
