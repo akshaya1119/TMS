@@ -26,12 +26,12 @@ const DepartmentList = ({ departments, handleEdit, handleEditSubmit, newDepartme
                                         dept.departmentName?.toLowerCase().includes(searchQuery.toLowerCase()) 
                                     ) 
                                     .map((dept) => ( 
-                                        <tr key={dept.id} className="table-row mt-1"> 
-                                            <td className="col col-3" data-label="S.No">{dept.id}</td> 
+                                        <tr key={dept.departmentId} className="table-row mt-1"> 
+                                            <td className="col col-3" data-label="S.No">{dept.departmentId}</td> 
                                             <td className="col col-6" data-label="Department">{dept.departmentName}</td> 
                                             <td className="col col-3" data-label="Actions"> 
-                                                {editItem && editItem.id === dept.id ? ( 
-                                                    <Form onSubmit={(e) => handleEditSubmit(e, dept.id, newDepartment)}> 
+                                                {editItem && editItem.departmentId === dept.departmentId ? ( 
+                                                    <Form onSubmit={(e) => handleEditSubmit(e, dept.departmentId, newDepartment)}> 
                                                         <input 
                                                             className="form-control" 
                                                             type="text" 

@@ -3,23 +3,27 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useSecurity } from './../../context/Security';
 
-const userapi= process.env.REACT_APP_API_USERS;
+const userapi = process.env.REACT_APP_API_USERS;
+const departmentapi = process.env.REACT_APP_API_DEPARTMENTS;
+const roleapi = process.env.REACT_APP_API_ROLES;
 
 const EditUser = () => {
     const [message, setMessage] = useState(null);
     const { userId } = useParams();
-    const {decrypt} = useSecurity(); 
-  const decryptid = decrypt(userId);
+    const { decrypt } = useSecurity();
+    const decryptid = decrypt(userId);
+    const [departments, setDepartments] = useState([]);
+    const [Roles, setRoles] = useState([]);
     const [formData, setFormData] = useState({
-        
+
         firstName: '',
         lastName: '',
         email: '',
         password: '',
         //confirmPassword: '',
         mobileNo: '',
-        departmentName: '',
-        role: '',
+        departmentId: '',
+        roleId: '',
         address: '',
         dateOfBirth: '',
     });
@@ -35,6 +39,31 @@ const EditUser = () => {
                 setMessage('Error updating user. Please try again.');
             });
     }, [decryptid]);
+    useEffect(() => {
+        async function fetchDepartments() {
+            try {
+                const response = await axios.get(departmentapi);
+                setDepartments(response.data);
+            } catch (error) {
+                console.error('Error fetching departments:', error);
+            }
+        }
+
+        fetchDepartments();
+    }, []);
+
+    useEffect(() => {
+        async function fetchRoles() {
+            try {
+                const response = await axios.get(roleapi);
+                setRoles(response.data);
+            } catch (error) {
+                console.error('Error fetching Roles:', error);
+            }
+        }
+
+        fetchRoles();
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value, type } = e.target;
@@ -122,8 +151,6 @@ const EditUser = () => {
                         />
                     </div>
 
-                    
-
                 </div>
 
                 {/* Address */}
@@ -144,7 +171,7 @@ const EditUser = () => {
                         />
                     </div>
 
-                    
+
                     {/* Mobile Number */}
                     <label htmlFor="mobileNo" className="col-sm-1 col-form-label text-start">
                         MobileNo:
@@ -161,7 +188,7 @@ const EditUser = () => {
                             value={formData.mobileNo}
                         />
                     </div>
-                    
+
                     {/* Email */}
                     <label htmlFor="email" className="col-sm-1 col-form-label text-end">
                         Email:
@@ -202,38 +229,45 @@ const EditUser = () => {
                     {/* Department */}
 
 
-                    <label htmlFor="departmentName" className="col-sm-1 col-form-label text-start">
+                    <div className="row mb-3">
+                    <label htmlFor="departmentId" className="col-sm-1 col-form-label text-start">
                         Department:
                     </label>
                     <div className="col-sm-3">
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="departmentName"
-                            name="departmentName"
-                            placeholder="Enter department"
+                        <select
+                            className="form-select"
+                            id="departmentId"
+                            name="departmentId"
                             required
                             onChange={handleInputChange}
-                            value={formData.departmentName}
-                        />
+                            value={formData.departmentId}
+                        >
+                            <option value="">Select department</option>
+                            {departments.map(dep => (
+                                <option key={dep.departmentId} value={dep.departmentId}>{dep.departmentName}</option>
+                            ))}
+                        </select>
                     </div>
                     {/* Designation */}
-                    <label htmlFor="role" className="col-sm-1 col-form-label text-start">
+                    <label htmlFor="roleId" className="col-sm-1 col-form-label text-start">
                         Designation:
                     </label>
                     <div className="col-sm-3">
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="role"
-                            name="role"
-                            placeholder="Enter designation"
+                        <select
+                            className="form-select"
+                            id="roleId"
+                            name="roleId"
                             required
                             onChange={handleInputChange}
-                            value={formData.role}
-                        />
-                        
+                            value={formData.roleId}
+                        >
+                            <option value="">Select Role</option>
+                            {Roles.map(role => (
+                                <option key={role.roleId} value={role.roleId}>{role.role}</option>
+                            ))}
+                        </select>
                     </div>
+                </div>
 
                     {/* Confirm Password
           <label htmlFor="confirmPassword" className="col-sm-3 col-form-label text-end">

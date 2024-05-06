@@ -46,6 +46,8 @@ const ArchiveTable = () => {
     try {
       await axios.post(`${ticketapi}/${selectedTicket.ticketId}/unarchive?userId=${user.userId}`);
       // Update the local state or refresh the list of archived tickets
+
+      window.location.reload();
     } catch (error) {
       console.error('Error unarchiving ticket:', error);
       // Handle the error, e.g., show an error message
@@ -106,7 +108,7 @@ const ArchiveTable = () => {
                 <td>{ticket.ticketType}</td>
                 <td>{new Date(ticket.dueDate).toLocaleString()}</td>
                 <td>{ticket.department}</td>
-                <td>{ticket.projectType}</td>
+                <td>{ticket.project2}</td>
                 <td>
                   <Button onClick={() => handleViewTicket(ticket)}>
                     <FontAwesomeIcon icon={faEye} className="text-success" />

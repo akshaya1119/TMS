@@ -2,15 +2,12 @@ import axios from "axios";
 import React, { useState, useEffect } from 'react';
 import { useUser } from './../../context/UserContext';
 import { Spinner } from 'react-bootstrap';
-import { useNavigate } from "react-router-dom";
+import { Form, useNavigate } from "react-router-dom";
 import Select from 'react-select';
 import addNotification from "react-push-notification";
 import greentick from './images/greentick.jpg';
-// import NotificationService from '../Nots/NotificationService';
-import * as signalR from '@microsoft/signalr'; // Import SignalR
-import { io } from "socket.io-client";
 
-const dashboardapi= process.env.REACT_APP_MY_SERVER;
+const dashboardapi = process.env.REACT_APP_MY_SERVER;
 const userapi = process.env.REACT_APP_API_USERS;
 const TicketTypeapi = process.env.REACT_APP_API_TICKETTYPE;
 const ProjectTypeapi = process.env.REACT_APP_API_PROJECTTYPE;
@@ -19,7 +16,7 @@ const Ticketapi = process.env.REACT_APP_API_TICKET;
 const AddTicket = () => {
   const navigate = useNavigate();
   const { user } = useUser();
-  
+
   const [loading, setLoading] = useState(false);
   const [ticketType, setTicketType] = useState([]);
   const [projectType, setProjectType] = useState([]);
@@ -28,28 +25,28 @@ const AddTicket = () => {
     email: user.email,
     priority: 'low',
     title: '',
-    department: '',
-    ticketType: '',
+    departmentId: '',
+    ticketTypeId: '',
     status: 'Open',
-    projectType: '',
+    projectId: '',
     dueDate: '',
     description: '',
     assigneeEmail: '',
-    attachments: null
+    // attachments: null
   });
   const [message, setMessage] = useState(null);
   // const [hubConnection, setHubConnection] = useState(null); // State for SignalR connection
 
   const ClickToNotify = () => {
-   
+
 
     addNotification({
       title: 'Ticket',
       message: 'New ticket has been assigned',
       duration: 11000,
       icon: greentick,
-      native:true,
-      onClick: () => window.location= `${dashboardapi}`,
+      native: true,
+      onClick: () => window.location = `${dashboardapi}`,
 
     });
   }
@@ -73,10 +70,6 @@ const AddTicket = () => {
   // }, []);
 
 
-  // useEffect (() => {
-  //   const socket = io('http://localhost:3000');
-  // }, [])
-
   useEffect(() => {
     async function fetchAssignee() {
       try {
@@ -99,9 +92,13 @@ const AddTicket = () => {
         console.error('Error fetching Ticket Type:', error);
       }
     }
-
+    
     fetchTickettype();
   }, []);
+
+  useEffect(() => {
+     // Moved inside the useEffect
+  }, [ticketType]); // Added ticketType to the dependency array
 
   useEffect(() => {
     async function fetchProjecttype() {
@@ -116,57 +113,62 @@ const AddTicket = () => {
     fetchProjecttype();
   }, []);
 
- // Modify handleInputChange function
-const handleInputChange = (e) => {
-  const { name, value } = e.target || e;
+  // Modify handleInputChange function
+  const handleInputChange = (e) => {
+    const { name, value } = e.target || e;
+
+    if (name === 'assigneeEmail') {
+      const selectedAssignee = Assignee.find(assignee => assignee.email === value);
+      console.log(selectedAssignee);
+      const isSelfAssign = value.toLowerCase() === user.email.toLowerCase();
+      const newDepartment = isSelfAssign ? selectedAssignee.departmentname : (selectedAssignee?.departmentname || '');
+
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+        departmentId: selectedAssignee?.departmentId || '', // Update departmentId as well
+        department: newDepartment,
+        status: isSelfAssign ? 'Self-Assigned' : 'Open',
+      }));
+      console.log(formData.departmentId)
+    } else if (name === 'departmentId') {
+      setFormData((prevData) => ({
+        ...prevData,
+        departmentId: value,
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
+    console.log(formData.departmentId)
+
+  };
 
 
-  if (name === 'assigneeEmail') {
-    const selectedAssignee = Assignee.find(assignee => assignee.email === value);
-   
+  // ...
 
-    const isSelfAssign = value.toLowerCase() === user.email.toLowerCase();
-   
-
-    const newDepartment = isSelfAssign ? selectedAssignee.departmentName : (selectedAssignee?.departmentName || '');
-   
-
+  // Modify useEffect function for handling assignee changes
+  useEffect(() => {
+    const selectedAssignee = Assignee.find((assignee) => assignee.email === formData.assigneeEmail);
+    const isSelfAssign = formData.assigneeEmail.toLowerCase() === user.email.toLowerCase();
+    const newDepartment = isSelfAssign ? selectedAssignee?.departmentname : (selectedAssignee?.departmentname || '');
+  
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      departmentId: selectedAssignee?.departmentId || '',
       department: newDepartment,
       status: isSelfAssign ? 'Self-Assigned' : 'Open',
     }));
-  } else {
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  }
-};
-
-// ...
-
-// Modify useEffect function for handling assignee changes
-useEffect(() => {
-  const selectedAssignee = Assignee.find((assignee) => assignee.email === formData.assigneeEmail);
-  const isSelfAssign = formData.assigneeEmail.toLowerCase() === user.email.toLowerCase();
-  const newDepartment = isSelfAssign ? selectedAssignee.departmentName : (selectedAssignee?.departmentName || '');
-
-  setFormData((prevData) => ({
-    ...prevData,
-    department: newDepartment,
-    status: isSelfAssign ? 'Self-Assigned' : 'Open',
-  }));
-}, [formData.assigneeEmail, Assignee, user]);
-
-// ...
+  }, [formData.assigneeEmail, Assignee, user]);
+  
 
 
   const handleFileChange = (e) => {
     setFormData(prevData => ({
       ...prevData,
-      attachments: e.target.files
+      // attachments: e.target.files
     }));
   };
 
@@ -175,8 +177,11 @@ useEffect(() => {
     setLoading(true);
 
     const formattedParams = Object.entries(formData)
-      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-      .join('&');
+  .filter(([key, value]) => key !== 'department') // Exclude departmentName
+  .map(([key, value]) => `${key}=${value}`)
+  .join('&');
+
+  
 
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
@@ -202,25 +207,25 @@ useEffect(() => {
       setMessage('Ticket added successfully!');
       setLoading(false);
 
-       // Send notification using SignalR after successful ticket addition
+      // Send notification using SignalR after successful ticket addition
       //  if (hubConnection) {
       //   hubConnection.invoke('SendTicketAssignmentNotification', formData.assigneeEmail, `New ticket added: ${formData.title}`);
       // }
-       ClickToNotify();
+      ClickToNotify();
 
 
       setFormData({
         email: user.email,
         priority: 'low',
         title: '',
-        department: '',
-        ticketType: '',
+        departmentId: '',
+        ticketTypeId: '',
         status: 'Open',
-        projectType: '',
+        projectId: '',
         dueDate: '',
         description: '',
         assigneeEmail: '',
-        attachments: null
+        // attachments: null
       });
       navigate(`/Tickets/AddTicket/${res.data.userId}`);
     } catch (err) {
@@ -244,7 +249,7 @@ useEffect(() => {
         {/* ticketId */}
         <div className="row mb-3">
 
-        <label htmlFor="email" className="col-sm-3 col-form-label text-end">
+          <label htmlFor="email" className="col-sm-3 col-form-label text-end">
             Creator
           </label>
           <div className="col-sm-3">
@@ -259,7 +264,7 @@ useEffect(() => {
               onChange={handleInputChange}
               disabled
             />
-         
+
           </div>
 
           {/* priority */}
@@ -285,11 +290,6 @@ useEffect(() => {
               placeholder="Select Assignee"
             />
           </div>
-
-
-
-
-          
         </div>
 
         {/* title */}
@@ -331,22 +331,19 @@ useEffect(() => {
 
         {/* Ticket Type */}
         <div className="row mb-3">
-          <label htmlFor="ticketType" className="col-sm-3 col-form-label text-end">
+          <label htmlFor="ticketTypeId" className="col-sm-3 col-form-label text-end">
             Ticket Type<span className="text-danger"> * </span>
           </label>
           <div className="col-sm-3">
             <Select
               options={ticketType.map((TT) => ({
                 label: TT.ticketType,
-                value: TT.ticketType,
+                value: TT.ticketTypeId,
               }))}
-              value={{
-                label: formData.ticketType,
-                value: formData.ticketType,
-              }}
+              value={formData.ticketTypeId ? { label: ticketType.find(t => t.ticketTypeId === formData.ticketTypeId).ticketType, value: formData.ticketTypeId } : null}
               onChange={(selectedOption) =>
                 handleInputChange({
-                  target: { name: 'ticketType', value: selectedOption.value },
+                  target: { name: 'ticketTypeId', value: selectedOption.value },
                 })
               }
               isSearchable
@@ -372,29 +369,29 @@ useEffect(() => {
         </div>
 
 
-         {/* Project Type */}
-         <div className="row mb-3">
-          <label htmlFor="projectType" className="col-sm-3 col-form-label text-end">
+        {/* Project Type */}
+        <div className="row mb-3">
+
+          <label htmlFor="projectId" className="col-sm-3 col-form-label text-end">
             Project Type<span className="text-danger"> * </span>
           </label>
           <div className="col-sm-3">
             <Select
               options={projectType.map((pt) => ({
                 label: pt.projectTypes,
-                value: pt.projectTypes,
+                value: pt.projectId,
               }))}
-              value={{
-                label: formData.projectType,
-                value: formData.projectType,
-              }}
-              onChange={(selectedOption) =>
-                handleInputChange({
-                  target: { name: 'projectType', value: selectedOption.value },
-                })
-              }
+              value={formData.projectId ? { label: projectType.find((pt) => pt.projectId === formData.projectId).projectTypes, value: formData.projectId } : null}
+              onChange={(selectedOption) => handleInputChange
+                ({
+                  target: { name: 'projectId', value: selectedOption.value }
+                })}
               isSearchable
               placeholder="Select Project Type"
+              required
             />
+
+
           </div>
           {/* Due Date */}
           <label htmlFor="dueDate" className="col-sm-3 col-form-label text-end">
@@ -415,7 +412,7 @@ useEffect(() => {
 
         {/* Creator ID */}
         <div className="row mb-3">
-        <label htmlFor="ticketId" className="col-sm-3 col-form-label text-end">
+          <label htmlFor="ticketId" className="col-sm-3 col-form-label text-end">
             Ticket ID:
           </label>
           <div className="col-sm-3">
@@ -437,24 +434,25 @@ useEffect(() => {
             Department
           </label>
           <div className="col-sm-3">
-            <input
+            {/* <input
               className="form-control"
               id="department"
               name="department"
-              value={formData.department || ''}
+              value={formData.departmentId || ''}
               required
               onChange={handleInputChange}
               readOnly
               disabled
+            /> */}
+            <Select
+              value={{ value: formData.departmentId, label: formData.department }}
+              components={{ DropdownIndicator:() => null, IndicatorSeparator:() => null }}
+              isDisabled
             />
           </div>
 
-
-
-
-         
         </div>
-       
+
 
         {/* description */}
         <div className="row mb-3">
@@ -498,9 +496,9 @@ useEffect(() => {
             </button>
           </div>
         </div>
-      </form>
-      
-    </div>
+      </form >
+
+    </div >
   );
 };
 

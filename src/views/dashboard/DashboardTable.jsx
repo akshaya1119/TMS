@@ -26,7 +26,11 @@ const DashboardTable = ({ tickets, setTickets }) => {
 
   useEffect(() => {
     if (tableRef.current) {
-      $(tableRef.current).DataTable();
+      $(tableRef.current).DataTable({
+        order: [[4,'desc']],
+        
+       }
+      );
     }
 
     // Fetch comments for each ticket

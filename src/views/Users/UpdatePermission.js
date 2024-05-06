@@ -31,7 +31,8 @@ const UpdatePermissionPage = ({userid}) => {
 
         const fetchModules = async () => {
             try {
-                const response = await axios.get(`${ApiBaseUrl}/api/Module`);
+                const response = await axios.get(`${ApiBaseUrl}/api/Modules`);
+                
                 setModules(response.data);
             } catch (error) {
                 console.error('Error fetching modules:', error);
@@ -109,6 +110,7 @@ const UpdatePermissionPage = ({userid}) => {
 
     const getModuleNameById = (moduleId) => {
         const module = modules.find(m => m.id === moduleId);
+        
         return module ? module.name : 'Unknown';
     };
 

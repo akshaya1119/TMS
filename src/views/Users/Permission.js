@@ -28,11 +28,9 @@ const Permission = () => {
   // Function to handle user selection
   const handleUserSelect = (user) => {
     setSelectedUser(user);
-    setUserDepartment(user.departmentName);
+    setUserDepartment(user.departmentname);
   };
-  console.log(selectedUser?.value)
-
-
+ 
   // Function to handle viewing permissions
   const handleViewPermission = () => {
     setShowPermissionPage(true);
@@ -49,7 +47,7 @@ const Permission = () => {
                 options={users.map((user) => ({
                   value: user.userId,
                   label: `${user.firstName} ${user.lastName}`,
-                  departmentName: user.departmentName, // Added departmentName property
+                  departmentname: user.departmentname, // Added departmentName property
                 }))}
                 filterOption={({ label }, searchString) => {
                   return label.toLowerCase().includes(searchString.toLowerCase());
