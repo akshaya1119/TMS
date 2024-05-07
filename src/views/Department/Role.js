@@ -3,7 +3,7 @@ import {  Button, Form } from 'react-bootstrap'; // Import Collapse
 import PropTypes from 'prop-types'; // Import PropTypes 
  
  
-const Roles = ({ roles, handleEdit, handleEditSubmitRole, newRoles, setNewRoles, editItem, searchQuery }) => { 
+const Designation = ({ designations, handleEdit, handleEditSubmitDesignation, newDesignation, setNewDesignation, editItem, searchQuery }) => { 
  
     return ( 
         <div className="container py-5"> 
@@ -14,33 +14,33 @@ const Roles = ({ roles, handleEdit, handleEditSubmitRole, newRoles, setNewRoles,
                             <thead> 
                                 <tr className="table-header mt-3"> 
                                     <th scope="col" className="col-3">S.No</th> 
-                                    <th scope="col" className="col-6">Roles</th> 
+                                    <th scope="col" className="col-6">Designation</th> 
                                     <th scope="col" className="col-3">Actions</th> 
                                 </tr> 
                             </thead> 
                             <tbody> 
-                                {roles 
-                                    .filter((role) => role.role?.toLowerCase().includes(searchQuery.toLowerCase())) 
-                                    .map((role) => ( 
-                                        <tr key={role.roleId} className="table-row mt-1"> 
+                                {designations 
+                                    .filter((designation) => designation.designationName?.toLowerCase().includes(searchQuery.toLowerCase())) 
+                                    .map((designation) => ( 
+                                        <tr key={designation.designationId} className="table-row mt-1"> 
  
-                                            <td className="col col-3" data-label="SNo.">{role.roleId}</td> 
-                                            <td className="col col-6" data-label="Roles">{role.role}</td> 
+                                            <td className="col col-3" data-label="SNo.">{designation.designationId}</td> 
+                                            <td className="col col-6" data-label="Designation">{designation.designationName}</td> 
                                             <td className="col col-3" data-label="Actions"> 
-                                                {editItem && editItem.roleId === role.roleId ? ( 
-                                                    <Form onSubmit={(e) => handleEditSubmitRole(e, role.roleId, newRoles)}> 
+                                                {editItem && editItem.designationId === designation.designationId ? ( 
+                                                    <Form onSubmit={(e) => handleEditSubmitDesignation(e, designation.designationId, newDesignation)}> 
                                                         <input 
                                                             className="form-control" 
                                                             type="text" 
-                                                            value={newRoles || role.role} 
-                                                            onChange={(e) => setNewRoles(e.target.value)} 
+                                                            value={newDesignation || designation.designationName} 
+                                                            onChange={(e) => setNewDesignation(e.target.value)} 
                                                         /> 
                                                         <Button type="submit" variant="success" size="sm"> 
                                                             Save 
                                                         </Button> 
                                                     </Form> 
                                                 ) : ( 
-                                                    <Button variant="outline-primary" size="sm" onClick={() => handleEdit(role)}> 
+                                                    <Button variant="outline-primary" size="sm" onClick={() => handleEdit(designation)}> 
                                                         <i className="fa-solid fa-pencil"></i> 
                                                     </Button> 
                                                 )} 
@@ -59,13 +59,13 @@ const Roles = ({ roles, handleEdit, handleEditSubmitRole, newRoles, setNewRoles,
  
     ); 
 }; 
-Roles.propTypes = { // Define prop types 
-    roles: PropTypes.array.isRequired, 
+Designation.propTypes = { // Define prop types 
+    designations: PropTypes.array.isRequired, 
     handleEdit: PropTypes.func.isRequired, 
-    handleEditSubmitRole: PropTypes.func.isRequired, 
-    newRoles: PropTypes.string.isRequired, 
-    setNewRoles: PropTypes.func.isRequired, 
+    handleEditSubmitDesignation: PropTypes.func.isRequired, 
+    newDesignation: PropTypes.string.isRequired, 
+    setNewDesignation: PropTypes.func.isRequired, 
     searchQuery: PropTypes.func.isRequired, 
     editItem: PropTypes.object, 
 }; 
-export default Roles;
+export default Designation;

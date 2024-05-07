@@ -5,18 +5,19 @@ import './Department.css';
 import PermissionChecker from './../../context/PermissionChecker';
 import DepartmentList from './DepartmentList';
 import CreateDepartmentForm from './CreateDepartmentForm';
-import Roles from './Role';
+import Designation from './Role';
 import CreateRoleForm from './CreateRoleForm';
 import CreateTicketForm from './CreateTicketForm';
 import CreateProjectForm from './CreateProjForm';
 import ProjectType from './ProjectType';
 import Tickettype from './TicketType';
 import Tabs from 'react-bootstrap/Tabs';
+import CreateDesignationForm from './CreateRoleForm';
 
 
 
 const Departmentapi = process.env.REACT_APP_API_DEPARTMENTS;
-const Roleapi = process.env.REACT_APP_API_ROLES;
+const designationapi = process.env.REACT_APP_API_DESIGNATION;
 const TicketTypeapi = process.env.REACT_APP_API_TICKETTYPE;
 const ProjectTypepi = process.env.REACT_APP_API_PROJECTTYPE;
 const Department = () => {
@@ -24,9 +25,9 @@ const Department = () => {
     const [departments, setDepartments] = useState([]);
     const [newDepartment, setNewDepartment] = useState('');
     const [openCreateDepartment, setOpenCreateDepartment] = useState(false);
-    const [roles, setRoles] = useState([]);
-    const [newRoles, setNewRoles] = useState('');
-    const [openCreateRole, setOpenCreateRole] = useState(false);
+    const [designation, setDesignation] = useState([]);
+    const [newdesignation, setNewDesignation] = useState('');
+    const [openCreateDesignation, setOpenCreateDesignation] = useState(false);
     const [project, setProject] = useState([]);
     const [newProject, setNewProject] = useState('');
     const [openProject, setOpenProject] = useState(false);
@@ -54,16 +55,16 @@ const Department = () => {
 
     // Fetch roles from the API when the component mounts 
     useEffect(() => {
-        const fetchRoles = async () => {
+        const fetchDesignation = async () => {
             try {
-                const response = await axios.get(Roleapi);
-                setRoles(response.data);
+                const response = await axios.get(designationapi);
+                setDesignation(response.data);
             } catch (error) {
-                console.error('Error fetching roles:', error);
+                console.error('Error fetching designation:', error);
             }
         };
 
-        fetchRoles();
+        fetchDesignation();
     }, []);
 
     const handleSearch = (e) => {
@@ -101,22 +102,22 @@ const Department = () => {
         setNewDepartment('');
     };
 
-    const handleEditSubmitRole = async (e, id, updatedValue) => {
+    const handleEditSubmitDesignation = async (e, id, updatedValue) => {
         e.preventDefault();
         try {
-            await axios.put(`${Roleapi}/${id}`, {
-                roleId: id,
-                role: updatedValue,
+            await axios.put(`${designationapi}/${id}`, {
+                designationId: id,
+                designationName: updatedValue,
             });
 
-            setRoles((prevRoles) =>
-                prevRoles.map((role) =>
-                    role.roleId === id ? { ...role, role: updatedValue } : role
+            setDesignation((prevDesignation) =>
+                prevDesignation.map((role) =>
+                    role.designationId === id ? { ...role, role: updatedValue } : role
                 )
             );
 
             setEditItem(null);
-            setNewRoles(''); // Reset newRoles state after submitting
+            setNewDesignation(''); // Reset newRoles state after submitting
         } catch (error) {
             console.error('Error updating role:', error);
         }
@@ -218,24 +219,24 @@ const Department = () => {
             }
         }
     };
-    const handleCreateRole = async (e) => {
+    const handleCreateDesignation = async (e) => {
         e.preventDefault();
-        if (newRoles.trim() !== '') {
-            if (roles.some(role => role.role === newRoles)) {
-                setErrorMessage('Role must be unique.');
+        if (newdesignation.trim() !== '') {
+            if (designation.some(designation => designation.designationName === newdesignation)) {
+                setErrorMessage('Designation must be unique.');
                 return;
             }
             try {
                 // Send a POST request to create a new department 
-                const response = await axios.post(Roleapi, {
-                    role: newRoles,
+                const response = await axios.post(designationapi, {
+                    designation: newdesignation,
                 });
 
                 // Update the state with the new department from the server response 
-                setRoles([...roles, response.data]);
-                setNewRoles('');
+                setDesignation([...designation, response.data]);
+                setNewDesignation('');
             } catch (error) {
-                console.error('Error creating Role:', error);
+                console.error('Error creating designation:', error);
             }
         }
     };
@@ -313,7 +314,7 @@ const Department = () => {
                                         </Tab>
                                     )}
                                     {hasPermission(4, 'canViewOnly') && (
-                                        <Tab eventKey="roles" title="Roles">
+                                        <Tab eventKey="designation" title="Designation">
 
                                         </Tab>
                                     )}
@@ -365,16 +366,16 @@ const Department = () => {
                                         </Col>}
                                     </Row>
                                 )}
-                                {activeTab === 'roles' && (
+                                {activeTab === 'designation' && (
                                     <Row>
                                         {hasPermission(4, 'canViewOnly') && <Col md={6}>
 
-                                            <Roles
-                                                roles={roles}
+                                            <Designation
+                                                designations={designation}
                                                 handleEdit={handleEdit}
-                                                handleEditSubmitRole={handleEditSubmitRole}
-                                                newRoles={newRoles}
-                                                setNewRoles={setNewRoles}
+                                                handleEditSubmitDesignation={handleEditSubmitDesignation}
+                                                newDesignation={newdesignation}
+                                                setNewDesignation={setNewDesignation}
                                                 editItem={editItem}
 
                                                 searchQuery={searchQuery}
@@ -382,18 +383,18 @@ const Department = () => {
                                         </Col>}
                                         {hasPermission(4, 'canAddOnly') && <Col md={6} className="position-relative">
                                             <Button
-                                                onClick={() => setOpenCreateRole(!openCreateRole)}
+                                                onClick={() => setOpenCreateDesignation(!openCreateDesignation)}
                                                 aria-controls="create-role-collapse"
-                                                aria-expanded={openCreateRole}
+                                                aria-expanded={openCreateDesignation}
                                                 className="mb-3 position-absolute top-0 end-0"
                                             >
                                                 Create
                                             </Button>
-                                            <CreateRoleForm
-                                                newRoles={newRoles}
-                                                setNewRoles={setNewRoles}
-                                                handleCreateRole={handleCreateRole}
-                                                openCreateRole={openCreateRole}
+                                            <CreateDesignationForm
+                                                newDesignation={newdesignation}
+                                                setNewDesignation={setNewDesignation}
+                                                handleCreateDesignation={handleCreateDesignation}
+                                                openCreateDesignation={openCreateDesignation}
                                             />
                                         </Col>}
                                     </Row>
@@ -449,7 +450,7 @@ const Department = () => {
                                         {hasPermission(6, 'canAddOnly') && <Col md={6} className="position-relative">
                                             <Button
                                                 onClick={() => setOpenProject(!openProject)}
-                                                aria-controls="create-role-collapse"
+                                                aria-controls="create-project-collapse"
                                                 aria-expanded={openProject}
                                                 className="mb-3 position-absolute top-0 end-0"
                                             >
@@ -473,7 +474,7 @@ const Department = () => {
                                     </Table>
                                 </Tab.Pane>
 
-                                <Tab.Pane eventKey="roles">
+                                <Tab.Pane eventKey="designation">
                                     <Table responsive hover bordered striped>
 
                                     </Table>

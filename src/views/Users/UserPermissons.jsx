@@ -39,6 +39,28 @@ const PermissionPage = () => {
   }, [userID]);
 
 
+  // useEffect(() => {
+  //   // Fetch all modules
+  //   const fetchModules = async () => {
+  //     try {
+  //       const response = await axios.get(moduleapi);
+  //       setModules(response.data);
+  //       console.log(response.data);
+  //       setModulePermissions(response.data.map(module =>({
+  //         module_Id:module.id,
+  //         can_View:false,
+  //         can_Add :false,
+  //         can_Update:false,
+  //         can_Delete:false,
+  //       })))
+  //     } catch (error) {
+  //       console.error('Error fetching modules:', error);
+  //     }
+  //   };
+
+  //   fetchModules();
+  // }, []);
+
   useEffect(() => {
     // Fetch all modules
     const fetchModules = async () => {
@@ -46,20 +68,35 @@ const PermissionPage = () => {
         const response = await axios.get(moduleapi);
         setModules(response.data);
         console.log(response.data);
-        setModulePermissions(response.data.map(module =>({
-          module_Id:module.id,
-          can_View:false,
-          can_Add :false,
-          can_Update:false,
-          can_Delete:false,
-        })))
+        
+        // If user is admin, set all permissions to true by default
+        const isAdminUser = user.roleId === 1;
+        if (isAdminUser) {
+          setModulePermissions(response.data.map(module =>({
+            module_Id:module.id,
+            can_View: true,
+            can_Add : true,
+            can_Update: true,
+            can_Delete: true,
+          })));
+        } else {
+          // If user is not admin, check for specific modules and set permissions accordingly
+          setModulePermissions(response.data.map(module =>({
+            module_Id:module.id,
+            can_View: ['NavPermission','Roles','Masters','Department','Users','Tickets', 'TicketType', 'ProjectType'].includes(module.name),
+            can_Add : false, // Set to false by default for non-admin users
+            can_Update: false, // Set to false by default for non-admin users
+            can_Delete: false, // Set to false by default for non-admin users
+          })));
+        }
       } catch (error) {
         console.error('Error fetching modules:', error);
       }
     };
-
+  
     fetchModules();
-  }, []);
+  }, [user]);
+  
 
   const handleInputChange = (module_Id, permissionType, checked) => { 
     setModulePermissions((prevPermissions) => 
