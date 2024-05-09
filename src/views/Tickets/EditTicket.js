@@ -145,6 +145,7 @@ const EditTicket = () => {
         userTicketType: lastComment.newTicketType, 
         userStatus: lastComment.newStatus,
         userPriority: lastComment.newPriority,
+        userTicketTypeId: lastComment.newTicketTypeId,
       });
       console.log("Updated Form Data:", {
         ...formData,
@@ -161,6 +162,7 @@ const EditTicket = () => {
         userTicketType: formData.ticketType,
         userStatus: formData.status, 
         userPriority: formData.priority,
+        userTicketTypeId: formData.ticketTypeId,
       });
       console.log("Updated FormData:", formData); // Add this logging statement
     }
@@ -194,8 +196,8 @@ const EditTicket = () => {
         prev: formData.priority,
         pre: formData.status,
         newp: formData.userPriority,
-        pret: formData.ticketTypeId,
-        newt: formData.userTicketType,
+        pret: formData.userTicketTypeId,
+        newt: formData.userTicketTypeId,
         newa: formData.userAssigneeEmail,
         news: formData.userStatus,
         prep: formData.priority,
@@ -587,11 +589,11 @@ console.log(formData)
                         Ticket Type:
                       </Form.Label>
                       <Col sm={8}>
-                        <Form.Select value={formData.userTicketType} onChange={handleInputChange} name="userTicketType">
+                        <Form.Select value={formData.userTicketTypeId} onChange={handleInputChange} name="userTicketType">
                           <option value="">Select Ticket Type</option>
                          
                           {ticketTypes.map((type) => (
-                            <option key={type.ticketTypeId} value={type.ticketType}>
+                            <option key={type.ticketTypeId} value={type.ticketTypeId}>
                               {type.ticketType}
                             </option>
                           ))}
