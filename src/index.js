@@ -8,7 +8,7 @@ import { Provider } from 'react-redux'
 import store from './store'
 import 'datatables.net-dt/css/jquery.dataTables.css'
 import 'datatables.net'
-
+import './index.css'
 
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>

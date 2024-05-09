@@ -29,6 +29,7 @@ const Permission = () => {
   const handleUserSelect = (user) => {
     setSelectedUser(user);
     setUserDepartment(user.departmentname);
+    setShowPermissionPage(false);
   };
  
   // Function to handle viewing permissions

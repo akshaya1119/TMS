@@ -137,20 +137,37 @@ const EditTicket = () => {
 
   const handleToggleUserComment = () => {
     if (comments.length > 0) {
-      const lastComment = comments[comments.length - 1]; setFormData({
-        ...formData, userAssigneeEmail: lastComment.newAssigneeEmail,
-        userTicketType: lastComment.newTicketType, userStatus: lastComment.newStatus,
+      const lastComment = comments[comments.length - 1]; 
+      console.log("Last Comment:", lastComment);
+      setFormData({
+        ...formData, 
+        userAssigneeEmail: lastComment.newAssigneeEmail,
+        userTicketType: lastComment.newTicketType, 
+        userStatus: lastComment.newStatus,
         userPriority: lastComment.newPriority,
       });
-    } else {    // If there are no comments, set the initial state of the form fields with the details of the ticket
+      console.log("Updated Form Data:", {
+        ...formData,
+        userAssigneeEmail: lastComment.newAssigneeEmail,
+        userTicketType: lastComment.newTicketType, 
+        userStatus: lastComment.newStatus,
+        userPriority: lastComment.newPriority,
+      }); // Add this logging statement
+    } else {    
+      // If there are no comments, set the initial state of the form fields with the details of the ticket
       setFormData({
         ...formData,
-        userAssigneeEmail: formData.assigneeEmail, userTicketType: formData.ticketType,
-        userStatus: formData.status, userPriority: formData.priority,
+        userAssigneeEmail: formData.assigneeEmail, 
+        userTicketType: formData.ticketType,
+        userStatus: formData.status, 
+        userPriority: formData.priority,
       });
+      console.log("Updated FormData:", formData); // Add this logging statement
     }
     setShowUserComment(!showUserComment);
   };
+  
+  
 
 
 
@@ -277,6 +294,7 @@ const EditTicket = () => {
       setMessage('Error marking ticket as completed.');
     }
   };
+console.log(formData)
 
   return (
     <div className="container mt-3">
@@ -431,7 +449,7 @@ const EditTicket = () => {
                 <label htmlFor="description" className="col-form-label text-end">
                   Description:
                 </label>
-                <FontAwesomeIcon icon={faCommentDots} className="me-2" onClick={handleToggleUserComment} />
+                <FontAwesomeIcon icon={faCommentDots} className="me-2 text-primary" onClick={handleToggleUserComment} />
               </div>
               <div className="mb-3">
                 <textarea
@@ -571,9 +589,9 @@ const EditTicket = () => {
                       <Col sm={8}>
                         <Form.Select value={formData.userTicketType} onChange={handleInputChange} name="userTicketType">
                           <option value="">Select Ticket Type</option>
-                          {console.log(ticketTypes)}
+                         
                           {ticketTypes.map((type) => (
-                            <option key={type.ticketTypeId} value={type.ticketTypeId}>
+                            <option key={type.ticketTypeId} value={type.ticketType}>
                               {type.ticketType}
                             </option>
                           ))}

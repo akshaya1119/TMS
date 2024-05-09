@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 const CreateDesignationForm = ({ newDesignation, setNewDesignation, handleCreateDesignation, openCreateDesignation}) => { 
     return ( 
         <Collapse in={openCreateDesignation}> 
-        <div id="create-department-collapse"> 
+        <div id="create-designation-collapse"> 
             <div className="mt-3"> {/* Add margin top to create space below the button */} 
                 <div className="glassmorphism-card"> 
                     <div className="card-header"> 
@@ -14,7 +14,7 @@ const CreateDesignationForm = ({ newDesignation, setNewDesignation, handleCreate
                     <div className="card-body"> 
                         <Form onSubmit={handleCreateDesignation}> 
                             <div className="form-group"> 
-                                <label htmlFor="Designation">Enter New Designation:</label> 
+                                <label htmlFor="designation">Enter New Designation:</label> 
                                 <input 
                                     required="" 
                                     className="form-control" 

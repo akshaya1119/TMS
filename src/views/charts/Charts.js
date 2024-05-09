@@ -138,7 +138,22 @@ const Charts = () => {
           {/* <CCardHeader>Pie Chart</CCardHeader> */}
           
           <CCardBody>
-            <CChartPie
+            {
+              (counts.open==0  && counts.pending==0 && counts.selfassigned==0 && counts.completed==0)?(
+                <CChartPie
+              data={{
+                labels: ['No Data'],
+                datasets: [
+                  {
+                    data: [100],
+                    backgroundColor: [ '#CCCCCC'],
+                    hoverBackgroundColor: ['#CCCCCC'],
+                  },
+                ],
+              }}
+            />
+              ):(
+                <CChartPie
               data={{
                 labels: ['Open', 'Pending', 'Self-Assigned', 'Completed'],
                 datasets: [
@@ -150,6 +165,20 @@ const Charts = () => {
                 ],
               }}
             />
+              )
+            }
+            {/* <CChartPie
+              data={{
+                labels: ['Open', 'Pending', 'Self-Assigned', 'Completed'],
+                datasets: [
+                  {
+                    data: [counts.open, counts.pending, counts.selfassigned, counts.completed],
+                    backgroundColor: [ '#08683A','#36A2EB', '#FFFF33', '#F77000'],
+                    hoverBackgroundColor: ['#08683A', '#36A2EB', '#FFFF33', '#F77000'],
+                  },
+                ],
+              }}
+            /> */}
           </CCardBody>
         </CCard>
       </CCol>

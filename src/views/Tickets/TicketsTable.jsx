@@ -52,7 +52,10 @@ const TicketsTable = ({ tickets, hasPermission, setTickets }) => {
 
   useEffect(() => {
     if (tableRef.current) {
+      
       $(tableRef.current).DataTable();
+      // $(tableRef.current).DataTable().clear();
+      // $(tableRef.current).DataTable().row.add(tickets).draw();
     }
   }, []);
 
@@ -127,7 +130,7 @@ const TicketsTable = ({ tickets, hasPermission, setTickets }) => {
                     </Tooltip>
                   }
                 >
-                  <span>{ticket.title}</span>
+                  <span className='text-truncate d-inline-block ' style={{maxWidth: '150px'}}>{ticket.title}</span>
                 </OverlayTrigger>
               </td>
               <td>{ticket.status}</td>

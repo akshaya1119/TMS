@@ -22,7 +22,7 @@ const Dashboard = () => {
   const [showDueToday, setShowDueToday] = useState(false);
   let navigate = useNavigate();
 
- 
+
 
   useEffect(() => {
     const fetchCountsAndTickets = async () => {
@@ -65,9 +65,7 @@ const Dashboard = () => {
               <Col>
                 <div className="card-client">
                   <div className="user-picture">
-                    {/* <svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"> */}
-                      {/* Placeholder SVG content */}
-                    {/* </svg> */}
+
                     <p className="number">{counts.open}</p>
                   </div>
                   <p className="name-client">Open</p>
@@ -76,9 +74,7 @@ const Dashboard = () => {
               <Col>
                 <div className="card-client">
                   <div className="user-picture">
-                    <svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
-                      {/* Placeholder SVG content */}
-                    </svg>
+
                     <p className="number">{counts.pending}</p>
                   </div>
                   <p className="name-client">Pending</p>
@@ -89,9 +85,7 @@ const Dashboard = () => {
               <Col>
                 <div className="card-client">
                   <div className="user-picture">
-                    <svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
-                      {/* Placeholder SVG content */}
-                    </svg>
+
                     <p className="number">{counts.selfassigned}</p>
                   </div>
                   <p className="name-client">Self Assigned</p>
@@ -100,9 +94,7 @@ const Dashboard = () => {
               <Col>
                 <div className="card-client">
                   <div className="user-picture">
-                    <svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
-                      {/* Placeholder SVG content */}
-                    </svg>
+
                     <p className="number">{counts.completed}</p>
                   </div>
                   <p className="name-client">Completed</p>
@@ -110,17 +102,19 @@ const Dashboard = () => {
               </Col>
             </Row>
           </Col>
-          <Col md={showDueToday ? 4 : 4}>
+          <Col md={4} style={{ display: showDueToday ? 'none' : 'block' }}>
             {/* Include your Pie Chart component here */}
             <Charts />
           </Col>
           {/* Wrap both the button and DueToday component in a single Col with md={2} */}
-          <Col md={2} >
+          <Col md={!showDueToday && 2} >
             <Row>
               <Col>
-              <Button onClick={onClickDueToday}  variant="danger">
-        Due Today
-      </Button>
+                <div className='text-end'>
+                  <Button onClick={onClickDueToday} variant="danger">
+                    Due Today
+                  </Button>
+                </div>
               </Col>
             </Row>
             <Row>

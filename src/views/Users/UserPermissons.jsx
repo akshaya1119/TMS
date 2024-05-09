@@ -223,9 +223,13 @@ const PermissionPage = () => {
               </Form>
             </Card.Body>
             <Card.Footer className='text-center'>
-              <Button variant="primary" onClick={handleAddPermission}>
+            <Button  variant="primary" type="submit" className="btn btn-primary" disabled={loading}  onClick={handleAddPermission}>
+              {loading ? <>Adding Permission...</> : " Add Permission"}
+
+            </Button>
+              {/* <Button variant="primary" onClick={handleAddPermission}>
                 Add Permission
-              </Button>
+              </Button> */}
             </Card.Footer>
 
 

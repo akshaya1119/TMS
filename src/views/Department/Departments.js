@@ -6,7 +6,6 @@ import PermissionChecker from './../../context/PermissionChecker';
 import DepartmentList from './DepartmentList';
 import CreateDepartmentForm from './CreateDepartmentForm';
 import Designation from './Role';
-import CreateRoleForm from './CreateRoleForm';
 import CreateTicketForm from './CreateTicketForm';
 import CreateProjectForm from './CreateProjForm';
 import ProjectType from './ProjectType';
@@ -111,8 +110,8 @@ const Department = () => {
             });
 
             setDesignation((prevDesignation) =>
-                prevDesignation.map((role) =>
-                    role.designationId === id ? { ...role, role: updatedValue } : role
+                prevDesignation.map((designation) =>
+                    designation.designationId === id ? { ...designation, designationName: updatedValue } : designation
                 )
             );
 
@@ -123,7 +122,7 @@ const Department = () => {
         }
     };
 
-    // Similar functions for TicketTypes and Projects
+   
 
     const handleEditSubmitTicketType = async (e, id, updatedValue) => {
         e.preventDefault();
@@ -229,7 +228,7 @@ const Department = () => {
             try {
                 // Send a POST request to create a new department 
                 const response = await axios.post(designationapi, {
-                    designation: newdesignation,
+                    designationName: newdesignation,
                 });
 
                 // Update the state with the new department from the server response 

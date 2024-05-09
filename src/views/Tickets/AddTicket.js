@@ -32,7 +32,7 @@ const AddTicket = () => {
     dueDate: '',
     description: '',
     assigneeEmail: '',
-    // attachments: null
+    attachments: null
   });
   const [message, setMessage] = useState(null);
   // const [hubConnection, setHubConnection] = useState(null); // State for SignalR connection
@@ -168,7 +168,7 @@ const AddTicket = () => {
   const handleFileChange = (e) => {
     setFormData(prevData => ({
       ...prevData,
-      // attachments: e.target.files
+      attachments: e.target.files
     }));
   };
 
@@ -225,7 +225,7 @@ const AddTicket = () => {
         dueDate: '',
         description: '',
         assigneeEmail: '',
-        // attachments: null
+        attachments: null
       });
       navigate(`/Tickets/AddTicket/${res.data.userId}`);
     } catch (err) {
@@ -277,17 +277,15 @@ const AddTicket = () => {
                 label: Setas.email,
                 value: Setas.email,
               }))}
-              value={{
-                label: formData.assigneeEmail,
-                value: formData.assigneeEmail,
-              }}
+              value={formData.assigneeEmail ? { label: formData.assigneeEmail, value: formData.assigneeEmail } : null}
               onChange={(selectedOption) =>
                 handleInputChange({
-                  target: { name: 'assigneeEmail', value: selectedOption.value },
+                  target: { name: 'assigneeEmail', value: selectedOption ? selectedOption.value : '' },
                 })
               }
+             
               isSearchable
-              placeholder="Select Assignee"
+              placeholder="Select Ticket Type"
             />
           </div>
         </div>

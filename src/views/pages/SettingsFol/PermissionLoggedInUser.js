@@ -32,7 +32,7 @@ const UpdatePermissionPage = () => {
 
         const fetchModules = async () => {
             try {
-                const response = await axios.get(`${ApiBaseUrl}/api/Module`);
+                const response = await axios.get(`${ApiBaseUrl}/api/Modules`);
                 setModules(response.data);
             } catch (error) {
                 console.error('Error fetching modules:', error);

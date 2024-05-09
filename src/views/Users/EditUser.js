@@ -4,8 +4,10 @@ import { useParams } from 'react-router-dom';
 import { useSecurity } from './../../context/Security';
 
 const userapi = process.env.REACT_APP_API_USERS;
+const base = process.env.REACT_APP_BASE_API_URL;
 const departmentapi = process.env.REACT_APP_API_DEPARTMENTS;
-const roleapi = process.env.REACT_APP_API_ROLES;
+const designationapi = process.env.REACT_APP_API_DESIGNATION;
+
 
 const EditUser = () => {
     const [message, setMessage] = useState(null);
@@ -14,6 +16,7 @@ const EditUser = () => {
     const decryptid = decrypt(userId);
     const [departments, setDepartments] = useState([]);
     const [Roles, setRoles] = useState([]);
+    const [Designation, setDesignation] = useState([]);
     const [formData, setFormData] = useState({
 
         firstName: '',
@@ -23,6 +26,7 @@ const EditUser = () => {
         //confirmPassword: '',
         mobileNo: '',
         departmentId: '',
+        designationId: '',
         roleId: '',
         address: '',
         dateOfBirth: '',
@@ -55,7 +59,7 @@ const EditUser = () => {
     useEffect(() => {
         async function fetchRoles() {
             try {
-                const response = await axios.get(roleapi);
+                const response = await axios.get(`${base}/Roles`);
                 setRoles(response.data);
             } catch (error) {
                 console.error('Error fetching Roles:', error);
@@ -63,6 +67,18 @@ const EditUser = () => {
         }
 
         fetchRoles();
+    }, []);
+    useEffect(() => {
+        async function fetchDesignation() {
+            try {
+                const response = await axios.get(designationapi);
+                setDesignation(response.data);
+            } catch (error) {
+                console.error('Error fetching Designation:', error);
+            }
+        }
+
+        fetchDesignation();
     }, []);
 
     const handleInputChange = (e) => {
@@ -249,8 +265,26 @@ const EditUser = () => {
                         </select>
                     </div>
                     {/* Designation */}
-                    <label htmlFor="roleId" className="col-sm-1 col-form-label text-start">
+                    <label htmlFor="designationId" className="col-sm-1 col-form-label text-start">
                         Designation:
+                    </label>
+                    <div className="col-sm-3">
+                        <select
+                            className="form-select"
+                            id="designationId"
+                            name="designationId"
+                            required
+                            onChange={handleInputChange}
+                            value={formData.designationId}
+                        >
+                            <option value="">Select Designation</option>
+                            {Designation.map(designation => (
+                                <option key={designation.designationId} value={designation.designationId}>{designation.designationName}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <label htmlFor="roleId" className="col-sm-1 col-form-label text-end">
+                        Role:
                     </label>
                     <div className="col-sm-3">
                         <select
