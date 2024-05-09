@@ -277,13 +277,10 @@ const AddTicket = () => {
                 label: Setas.email,
                 value: Setas.email,
               }))}
-              value={{
-                label: formData.assigneeEmail,
-                value: formData.assigneeEmail,
-              }}
+              value={formData.assigneeEmail ? { label: formData.assigneeEmail, value: formData.assigneeEmail } : null}
               onChange={(selectedOption) =>
                 handleInputChange({
-                  target: { name: 'assigneeEmail', value: selectedOption.value },
+                  target: { name: 'assigneeEmail', value: selectedOption ? selectedOption.value : '' },
                 })
               }
               isSearchable
