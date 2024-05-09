@@ -58,7 +58,7 @@ const App = () => {
           <Route exact path="/500" name="Page 500" element={<Page500 />} />
           <Route path="/403" name="Access Denied" element={<AccessDeniedPage />} />
           <Route exact path="/ForgotPassword" name="Forgot Password" element={<ForgotPassword />} />
-          <Route exact path="/ChangePassword" name="Change Password" element={<ChangePassword/>}/>
+          <Route exact path="/ChangePassword" name="Change Password" element={<PrivateRoute element={<ChangePassword/>}/>}/>
           <Route path="*" name="Home" element={<PrivateRoute element={<DefaultLayout/>}/>} />
         </Routes>
       </Suspense>

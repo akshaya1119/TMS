@@ -7,10 +7,11 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useSecurity } from './../../../context/Security';
 import { useUser } from './../../../context/UserContext';
+import Designation from 'src/views/Department/Role';
 
 
 const departmentapi = process.env.REACT_APP_API_DEPARTMENTS;
-const roleapi = process.env.REACT_APP_API_ROLES;
+const designationapi = process.env.REACT_APP_API_DESIGNATION
 const userapi = process.env.REACT_APP_API_USERS;
 
 function PersonalDetails() {
@@ -20,7 +21,7 @@ function PersonalDetails() {
     const { user } = useUser();
     const { decrypt } = useSecurity();
     const [departments, setDepartments] = useState([]);
-    const [Roles, setRoles] = useState([]);
+    const [Designations, setDesignations] = useState([]);
     const decryptid = decrypt(user?.userId);
     const [formData, setFormData] = useState({
 
@@ -32,6 +33,7 @@ function PersonalDetails() {
         mobileNo: '',
         departmentName: '',
         role: '',
+        designationName:'',
         address: '',
         dateOfBirth: '',
     });
@@ -63,16 +65,16 @@ function PersonalDetails() {
     }, []);
 
     useEffect(() => {
-        async function fetchRoles() {
+        async function fetchDesignations() {
             try {
-                const response = await axios.get(roleapi);
-                setRoles(response.data);
+                const response = await axios.get(designationapi);
+                setDesignations(response.data);
             } catch (error) {
-                console.error('Error fetching Roles:', error);
+                console.error('Error fetching Designation:', error);
             }
         }
 
-        fetchRoles();
+        fetchDesignations();
     }, []);
 
     const handleInputChange = (e) => {
@@ -209,7 +211,7 @@ function PersonalDetails() {
                         </select>
                     </div>
                 </Form.Group>
-                <Form.Group as={Col} htmlFor="role">
+                <Form.Group as={Col} htmlFor="designationId">
                     <Form.Label>Designation</Form.Label>
 
 
@@ -217,15 +219,15 @@ function PersonalDetails() {
                         <select
                             type="text"
                             className="form-select"
-                            id="role"
-                            name="role"
+                            id="designationName"
+                            name="designationName"
 
                             required
                             onChange={handleInputChange}
                         >
 
-                            {Roles.map(role => (
-                                <option key={role.roleId} value={role.role}>{role.role}</option>
+                            {Designations.map(designation => (
+                                <option key={designation.designationId} value={designation.designationName}>{designation.designationName}</option>
                             ))}
                         </select>
                     </div>

@@ -1,5 +1,5 @@
 .bgimg{
-    background: url('./../../../assets/images/loginicon.png');
+    background: url('./../../../assets/images/loginicon.svg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -8,7 +8,7 @@
     
 }
 .bgimgchangepass{
-    background: url('./../../../assets/images/Reset\ password-pana.png');
+    background: url('./../../../assets/images/Reset-password-pana.svg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -17,7 +17,7 @@
     
 }
 .bgimgforgotpass{
-    background: url('./../../../assets/images/Forgot\ password-cuate.png');
+    background: url('./../../../assets/images/Forgot-password-cuate.svg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

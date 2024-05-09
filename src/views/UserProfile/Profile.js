@@ -240,7 +240,7 @@ const ProfilePage = () => {
           </MDBCol>
           <MDBCol lg="8">
             {console.log("userDetails:", userDetails)}
-            {console.log("firstName:", userDetails?.profilePicturePath)}
+          
             {userDetails ? (
               <MDBCard className="mb-4">
                 <MDBCardBody>
@@ -267,7 +267,7 @@ const ProfilePage = () => {
                       <MDBCardText>Designation</MDBCardText>
                     </MDBCol>
                     <MDBCol sm="9">
-                      <MDBCardText className="text-muted">{userDetails.role || 'N/A'}</MDBCardText>
+                      <MDBCardText className="text-muted">{userDetails.designationName || 'N/A'}</MDBCardText>
                     </MDBCol>
                   </MDBRow>
                   <hr />

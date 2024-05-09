@@ -28,7 +28,8 @@ const AllUsers = () => {
           name: `${user.firstName} ${user.lastName}`,
           mobileNo: user.mobileNo,
           departmentname: user.departmentname,
-          roleName: user.roleName,
+          
+          designationName: user.designationName,
         }));
 
         setUsers(mappedUsers);

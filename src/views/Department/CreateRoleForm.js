@@ -2,27 +2,27 @@ import React from 'react';
 import { Button, Form, Collapse } from 'react-bootstrap'; // Import Collapse 
 import PropTypes from 'prop-types'; 
  
-const CreateRoleForm = ({ newRoles, setNewRoles, handleCreateRole, openCreateRole}) => { 
+const CreateDesignationForm = ({ newDesignation, setNewDesignation, handleCreateDesignation, openCreateDesignation}) => { 
     return ( 
-        <Collapse in={openCreateRole}> 
-        <div id="create-department-collapse"> 
+        <Collapse in={openCreateDesignation}> 
+        <div id="create-designation-collapse"> 
             <div className="mt-3"> {/* Add margin top to create space below the button */} 
                 <div className="glassmorphism-card"> 
                     <div className="card-header"> 
-                        <div className="text-header fw-bold fs-3" style={{color: '#5856d6'}}>Create Role</div> 
+                        <div className="text-header fw-bold fs-3" style={{color: '#5856d6'}}>Create Designation</div> 
                     </div> 
                     <div className="card-body"> 
-                        <Form onSubmit={handleCreateRole}> 
+                        <Form onSubmit={handleCreateDesignation}> 
                             <div className="form-group"> 
-                                <label htmlFor="role">Enter New Role:</label> 
+                                <label htmlFor="designation">Enter New Designation:</label> 
                                 <input 
                                     required="" 
                                     className="form-control" 
-                                    name="role" 
-                                    id="role" 
+                                    name="designation" 
+                                    id="designation" 
                                     type="text" 
-                                    value={newRoles} 
-                                    onChange={(e) => setNewRoles(e.target.value)} 
+                                    value={newDesignation} 
+                                    onChange={(e) => setNewDesignation(e.target.value)} 
                                 /> 
                             </div> 
                             <Button type="submit" className="btn"> 
@@ -36,11 +36,11 @@ const CreateRoleForm = ({ newRoles, setNewRoles, handleCreateRole, openCreateRol
     </Collapse> 
     ); 
 }; 
-CreateRoleForm.propTypes = { // Define prop types 
-    newRoles: PropTypes.string.isRequired, 
-    setNewRoles: PropTypes.func.isRequired, 
-    handleCreateRole: PropTypes.func.isRequired, 
-    openCreateRole: PropTypes.bool.isRequired, 
+CreateDesignationForm.propTypes = { // Define prop types 
+    newDesignation: PropTypes.string.isRequired, 
+    setNewDesignation: PropTypes.func.isRequired, 
+    handleCreateDesignation: PropTypes.func.isRequired, 
+    openCreateDesignation: PropTypes.bool.isRequired, 
   }; 
    
-  export default CreateRoleForm;
+  export default CreateDesignationForm;

@@ -3,11 +3,12 @@ import React, { useState, useEffect } from 'react';
 import './AddUser.css';
 import { Spinner, Col } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
-import { UseSecurity, useSecurity } from "./../../context/Security";
+import { useSecurity } from "./../../context/Security";
 
 
 const departmentapi = process.env.REACT_APP_API_DEPARTMENTS;
-const roleapi = process.env.REACT_APP_API_ROLES;
+const base = process.env.REACT_APP_BASE_API_URL;
+const designationapi= process.env.REACT_APP_API_DESIGNATION;
 const userapi= process.env.REACT_APP_API_USERS;
 
 const onClickViewUser = () => {
@@ -19,6 +20,7 @@ const AddUser = () => {
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState([]);
   const [Roles, setRoles] = useState([]);
+  const [designations, setDesignation] = useState([]);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -28,6 +30,7 @@ const AddUser = () => {
     mobileNo: '',
     departmentId: '',
     roleId: '',
+    designationId: '',
     address: '',
     dateOfBirth: '',
     profilePicturePath: null,
@@ -50,7 +53,7 @@ const AddUser = () => {
   useEffect(() => {
     async function fetchRoles() {
       try {
-        const response = await axios.get(roleapi);
+        const response = await axios.get(`${base}/Roles`);
         setRoles(response.data);
       } catch (error) {
         console.error('Error fetching Roles:', error);
@@ -59,6 +62,22 @@ const AddUser = () => {
 
     fetchRoles();
   }, []);
+
+  useEffect(() => {
+    async function fetchDesignation() {
+      try {
+        const response = await axios.get(designationapi);
+
+        setDesignation(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error fetching Designation:', error);
+      }
+    }
+
+    fetchDesignation();
+  }, []);
+
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -97,6 +116,7 @@ const AddUser = () => {
           mobileNo: '',
           departmentId: '',
           roleId: '',
+          designationId: '',
           address: '',
           dateOfBirth: '',
           profilePicturePath: null,
@@ -270,9 +290,9 @@ const AddUser = () => {
               ))}
             </select>
           </div>
-          {/* Designation */}
-          <label htmlFor="roleId" className="col-sm-1 col-form-label text-start">
-            Designation<span className="text-danger">*</span>
+          {/* Role */}
+          <label htmlFor="roleId" className="col-sm-1 col-form-label text-end">
+            Role<span className="text-danger">*</span>
           </label>
           <div className="col-sm-3">
             <select
@@ -286,6 +306,27 @@ const AddUser = () => {
               <option value="">Select Role</option>
               {Roles.map(role => (
                 <option key={role.roleId} value={role.roleId}>{role.role}</option>
+              ))}
+            </select>
+          </div>
+
+
+          {/* Designation */}
+          <label htmlFor="designationId" className="col-sm-1 col-form-label text-end">
+          Designation<span className="text-danger">*</span>
+          </label>
+          <div className="col-sm-3">
+            <select
+              className="form-select"
+              id="designationId"
+              name="designationId"
+
+              required
+              onChange={handleInputChange}
+            >
+              <option value="">Select Designation</option>
+              {designations.map(designation => (
+                <option key={designation.designationId} value={designation.designationId}>{designation.designationName}</option>
               ))}
             </select>
           </div>

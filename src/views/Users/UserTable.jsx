@@ -41,7 +41,7 @@ const UserTable = ({ users,hasPermission }) => {
               <td>{user.email}</td>
               <td>{user.mobileNo}</td>
               <td>{user.departmentname}</td>
-              <th>{user.roleName}</th>
+              <th>{user.designationName}</th>
               <td className="d-flex gap-3 text-primary">
               <div className="d-flex gap-3 text-primary justify-content-center"> 
                   {hasPermission(1, 'canViewOnly') && <Link to={`/UserProfile/Profile/${user.userId}`}><FontAwesomeIcon icon={faEye} className="text-success"/></Link> } 
@@ -66,7 +66,7 @@ UserTable.propTypes = {
       email: PropTypes.string.isRequired,
       mobileNo: PropTypes.string.isRequired,
       departmentname: PropTypes.string.isRequired,
-      roleName: PropTypes.string.isRequired,
+      designationName: PropTypes.string.isRequired,
     })
   ).isRequired,
   hasPermission: PropTypes.func.isRequired,

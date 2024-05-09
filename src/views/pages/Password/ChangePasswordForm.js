@@ -152,7 +152,7 @@ const ChangePassword = () => {
               </Button>
             </Col>
             <Col xs={6} className='text-end fs-5'>
-              {/* Reset Password Button */}
+              {/* Login Password Button */}
               <Link to="/Login" color="primary" className="px-4" style={{ color: theme }} onClick={handleChangePassword}>
                 Login
               </Link>
