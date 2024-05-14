@@ -1,10 +1,13 @@
 // CreateDepartmentForm.js 
-import React from 'react'; 
+import React, {useState} from 'react'; 
 import { Button, Form, Collapse } from 'react-bootstrap'; // Import Collapse 
 import PropTypes from 'prop-types'; // Import PropTypes 
+import { Spinner } from 'react-bootstrap';
 
  
-const CreateDepartmentForm = ({ newDepartment, setNewDepartment, handleCreateDepartment, openCreateDepartment}) => { 
+
+
+const CreateDepartmentForm = ({ newDepartment, setNewDepartment, handleCreateDepartment, openCreateDepartment, loading}) => { 
   return ( 
     <Collapse in={openCreateDepartment}> 
       <div id="create-department-collapse"> 
@@ -16,18 +19,19 @@ const CreateDepartmentForm = ({ newDepartment, setNewDepartment, handleCreateDep
             <div className="card-body "> 
               <Form onSubmit={handleCreateDepartment}> 
                 <div className="form-group"> 
-                  <label htmlFor="department">Enter New Department:</label> 
+                  <label htmlFor="department"></label> 
                   <input 
                     required="" 
                     className="form-control" 
                     name="department" 
                     id="department" 
                     type="text" 
+                    placeholder='Enter New Department'
                     value={newDepartment} 
                     onChange={(e) => setNewDepartment(e.target.value)} 
                   /> 
-                </div> 
-                <Button type="submit" className="btn">Submit</Button> 
+                </div > 
+                <Button type="submit" className="btn mt-2" disabled= {loading}>{loading ? <><Spinner animation="border" size='sm' /> Adding Department...</> : "Submit"}</Button> 
               </Form> 
             </div> 
           </div> 
@@ -44,6 +48,7 @@ CreateDepartmentForm.propTypes = { // Define prop types
   setNewDepartment: PropTypes.func.isRequired, 
   handleCreateDepartment: PropTypes.func.isRequired, 
   openCreateDepartment: PropTypes.bool.isRequired, 
+  loading: PropTypes.bool.isRequired,
 }; 
  
 export default CreateDepartmentForm;

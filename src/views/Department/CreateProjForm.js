@@ -1,8 +1,8 @@
 import React from 'react'; 
-import { Button, Form, Collapse } from 'react-bootstrap'; // Import Collapse 
+import { Button, Form, Collapse,Spinner} from 'react-bootstrap'; // Import Collapse 
 import PropTypes from 'prop-types'; 
  
-const CreateProjectForm = ({ newProject, setNewProject, handleCreateProjectType, openProject }) => { 
+const CreateProjectForm = ({ newProject, setNewProject, handleCreateProjectType, openProject,loading}) => { 
     return ( 
         <Collapse in={openProject}> 
             <div id="create-Project-collapse"> 
@@ -14,20 +14,20 @@ const CreateProjectForm = ({ newProject, setNewProject, handleCreateProjectType,
                         <div className="card-body"> 
                             <Form onSubmit={handleCreateProjectType}> 
                                 <div className="form-group"> 
-                                    <label htmlFor="project">Enter New Project:</label> 
+                                    <label htmlFor="project"></label> 
                                     <input 
                                         required="" 
                                         className="form-control" 
                                         name="project" 
                                         id="project" 
                                         type="text" 
+                                        placeholder='Enter New Project'
                                         value={newProject} 
                                         onChange={(e) => setNewProject(e.target.value)} 
                                     /> 
                                 </div> 
-                                <Button type="submit" className="btn"> 
-                                    Submit 
-                                </Button> 
+                                <Button type="submit" className="btn mt-2" disabled= {loading}>{loading ? <><Spinner animation="border" size='sm' /> Adding Project...</> : "Submit"}</Button> 
+
                             </Form> 
                         </div> 
                     </div> 
@@ -42,6 +42,8 @@ CreateProjectForm.propTypes = { // Define prop types
     setNewProject: PropTypes.func.isRequired, 
     handleCreateProjectType: PropTypes.func.isRequired, 
     openProject: PropTypes.bool.isRequired, 
+    loading: PropTypes.bool.isRequired,
+
   }; 
    
   export default CreateProjectForm;

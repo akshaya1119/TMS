@@ -50,7 +50,7 @@ const AppHeader = () => {
   useEffect(() => {
     const fetchNewTickets = async () => {
       try {
-        const response = await fetch(`${ticketapi}/new-tickets?email=${user?.email}`);
+        const response = await fetch(`${ticketapi}/new-tickets?id=${user?.userId}`);
 
         if (!response.ok) {
           throw new Error('Failed to fetch new tickets');

@@ -108,7 +108,7 @@ const DashboardTable = ({ tickets, setTickets }) => {
             <th>DueDate</th>
             {/* <th>Department</th>
           <th>ProjectType</th> */}
-            <th>Creator Email</th>
+            <th>Creator </th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -143,7 +143,7 @@ const DashboardTable = ({ tickets, setTickets }) => {
 
               <td>{new Date(ticket.dueDate).toLocaleString()}</td>
 
-              <td>{ticket.email}</td>
+              <td>{ticket.creatorName}</td>
               <td>
                 <div className="d-flex gap-3 align-items-center">
 
@@ -203,8 +203,8 @@ const DashboardTable = ({ tickets, setTickets }) => {
           <Modal.Body>
             <p>Title: {selectedTicket.title}</p>
             <p>Description: {selectedTicket.description}</p>
-            <p>Creator ID: {selectedTicket.email}</p>
-            <p>Assignee ID: {selectedTicket.assigneeEmail}</p>
+            <p>Creator: {selectedTicket.creatorName}</p>
+            <p>Assignee: {selectedTicket.assigneeName}</p>
             <p>Attachments:</p>
             {selectedTicket.attachment && (
               <div>
@@ -242,7 +242,7 @@ DashboardTable.propTypes = {
       dueDate: PropTypes.string.isRequired,
       // department: PropTypes.string.isRequired,
       // projectType: PropTypes.string.isRequired,
-      email: PropTypes.string.isRequired,
+      creatorName: PropTypes.string.isRequired,
     })
   ).isRequired,
 

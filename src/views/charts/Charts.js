@@ -30,7 +30,7 @@ const Charts = () => {
     const fetchCountsAndTickets = async () => {
       try {
         // Fetch counts
-        const countsResponse = await fetch(`${Tickets}/status-count?email=${user.email}`);
+        const countsResponse = await fetch(`${Tickets}/status-count?id=${user.userId}`);
         const countsData = await countsResponse.json();
         setCounts({
           open: countsData.openCount,
@@ -40,7 +40,7 @@ const Charts = () => {
         });
   
         // Fetch tickets
-        const ticketsResponse = await fetch(`${Tickets}/ByUser?email=${user.email}`);
+        const ticketsResponse = await fetch(`${Tickets}/ByUser?Id=${user.userId}`);
         const ticketsData = await ticketsResponse.json();
         setTickets(ticketsData);
         setLoading(false);

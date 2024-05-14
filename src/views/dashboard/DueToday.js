@@ -23,7 +23,7 @@ const DueToday = () => {
     try {
       const response = await axios.get(`${ApiBaseUrl}/api/Tickets?userId=${user.userId}`);
       // Filter tickets where assigneeEmail matches the logged-in user's email
-      const filteredTickets = response.data.filter(ticket => ticket.assigneeEmail === user.email);
+      const filteredTickets = response.data.filter(ticket => ticket.assigneeId === user.userId);
       setTickets(filteredTickets);
       const todayTasks = getTicketsDueToday(filteredTickets);
       const upcomingTasks = getUpcomingDueDateTickets(filteredTickets);

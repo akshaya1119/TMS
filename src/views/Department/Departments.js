@@ -35,7 +35,8 @@ const Department = () => {
     const [openTicketType, setOpenTicketType] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [editItem, setEditItem] = useState(null);
-    const [errorMessage, setErrorMessage] = useState('')
+    const [errorMessage, setErrorMessage] = useState('');
+    const [loading,setLoading] = useState(false);
 
 
     // Fetch departments from the API when the component mounts 
@@ -204,6 +205,7 @@ const Department = () => {
                 setErrorMessage('Department name must be unique.');
                 return;
             }
+            setLoading(true); // Set loading to true when the form submission starts
             try {
                 // Send a POST request to create a new department 
                 const response = await axios.post(Departmentapi, {
@@ -216,15 +218,21 @@ const Department = () => {
             } catch (error) {
                 console.error('Error creating department:', error);
             }
+            finally {
+                setLoading(false); // Reset loading state after the request completes
+              }
         }
     };
     const handleCreateDesignation = async (e) => {
         e.preventDefault();
+        
         if (newdesignation.trim() !== '') {
             if (designation.some(designation => designation.designationName === newdesignation)) {
                 setErrorMessage('Designation must be unique.');
                 return;
             }
+            setLoading(true); // Set loading to true when the form submission starts
+
             try {
                 // Send a POST request to create a new department 
                 const response = await axios.post(designationapi, {
@@ -236,6 +244,10 @@ const Department = () => {
                 setNewDesignation('');
             } catch (error) {
                 console.error('Error creating designation:', error);
+                
+            }
+            finally{
+                setLoading(false); // Reset loading state after the request completes
             }
         }
     };
@@ -246,6 +258,8 @@ const Department = () => {
                 setErrorMessage('Project name must be unique.');
                 return;
             }
+            setLoading(true); // Set loading to true when the form submission starts
+
             try {
                 // Send a POST request to create a new department 
                 const response = await axios.post(ProjectTypepi, {
@@ -258,6 +272,10 @@ const Department = () => {
             } catch (error) {
                 console.error('Error creating Project Name:', error);
             }
+            finally{
+                setLoading(false); // Reset loading state after the request completes
+
+            }
         }
     };
     const handleCreateTicketType = async (e) => {
@@ -267,6 +285,8 @@ const Department = () => {
                 setErrorMessage('Ticket Type must be unique.');
                 return;
             }
+            setLoading(true); // Set loading to true when the form submission starts
+
             try {
                 // Send a POST request to create a new department 
                 const response = await axios.post(TicketTypeapi, {
@@ -278,6 +298,10 @@ const Department = () => {
                 setNewTicketType('');
             } catch (error) {
                 console.error('Error creating Ticket Type:', error);
+            }
+            finally{
+                setLoading(false); // Reset loading state after the request completes
+
             }
         }
     };
@@ -361,6 +385,7 @@ const Department = () => {
                                                 setNewDepartment={setNewDepartment}
                                                 handleCreateDepartment={handleCreateDepartment}
                                                 openCreateDepartment={openCreateDepartment} // Pass openCreateDepartment as a prop 
+                                                loading={loading} // Pass loading state as a prop
                                             />
                                         </Col>}
                                     </Row>
@@ -394,6 +419,7 @@ const Department = () => {
                                                 setNewDesignation={setNewDesignation}
                                                 handleCreateDesignation={handleCreateDesignation}
                                                 openCreateDesignation={openCreateDesignation}
+                                                loading={loading} // Pass loading state as a prop
                                             />
                                         </Col>}
                                     </Row>
@@ -427,6 +453,7 @@ const Department = () => {
                                                 setNewTicketType={setNewTicketType}
                                                 handleCreateTicketType={handleCreateTicketType}
                                                 openTicketType={openTicketType}
+                                                loading={loading} // Pass loading state as a prop
                                             />
                                         </Col>}
                                     </Row>
@@ -460,6 +487,7 @@ const Department = () => {
                                                 setNewProject={setNewProject}
                                                 handleCreateProjectType={handleCreateProjectType}
                                                 openProject={openProject}
+                                                loading={loading} // Pass loading state as a prop
                                             />
                                         </Col>}
                                     </Row>
