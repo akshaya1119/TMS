@@ -22,7 +22,7 @@ const AddTicket = () => {
   const [projectType, setProjectType] = useState([]);
   const [Assignee, setAssignee] = useState([]);
   const [formData, setFormData] = useState({
-    email: user.email,
+    creatorName: user.firstName,
     priority: 'low',
     title: '',
     departmentId: '',
@@ -31,7 +31,7 @@ const AddTicket = () => {
     projectId: '',
     dueDate: '',
     description: '',
-    assigneeEmail: '',
+    assigneeId: '',
     attachments: null
   });
   const [message, setMessage] = useState(null);
@@ -117,10 +117,11 @@ const AddTicket = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target || e;
 
-    if (name === 'assigneeEmail') {
-      const selectedAssignee = Assignee.find(assignee => assignee.email === value);
+    if (name === 'assigneeId') {
+      console.log(Assignee);
+      const selectedAssignee = Assignee.find(assignee => assignee.userId === value);
       console.log(selectedAssignee);
-      const isSelfAssign = value.toLowerCase() === user.email.toLowerCase();
+      const isSelfAssign = value === user.userId
       const newDepartment = isSelfAssign ? selectedAssignee.departmentname : (selectedAssignee?.departmentname || '');
 
       setFormData((prevData) => ({
@@ -130,7 +131,7 @@ const AddTicket = () => {
         department: newDepartment,
         status: isSelfAssign ? 'Self-Assigned' : 'Open',
       }));
-      console.log(formData.departmentId)
+      console.log(formData)
     } else if (name === 'departmentId') {
       setFormData((prevData) => ({
         ...prevData,
@@ -142,7 +143,7 @@ const AddTicket = () => {
         [name]: value,
       }));
     }
-    console.log(formData.departmentId)
+    console.log(formData)
 
   };
 
@@ -151,8 +152,8 @@ const AddTicket = () => {
 
   // Modify useEffect function for handling assignee changes
   useEffect(() => {
-    const selectedAssignee = Assignee.find((assignee) => assignee.email === formData.assigneeEmail);
-    const isSelfAssign = formData.assigneeEmail.toLowerCase() === user.email.toLowerCase();
+    const selectedAssignee = Assignee.find((assignee) => assignee.userId === formData.assigneeId);
+    const isSelfAssign = formData.assigneeId === user.userId
     const newDepartment = isSelfAssign ? selectedAssignee?.departmentname : (selectedAssignee?.departmentname || '');
   
     setFormData((prevData) => ({
@@ -161,7 +162,7 @@ const AddTicket = () => {
       department: newDepartment,
       status: isSelfAssign ? 'Self-Assigned' : 'Open',
     }));
-  }, [formData.assigneeEmail, Assignee, user]);
+  }, [formData.assigneeId, Assignee, user]);
   
 
 
@@ -177,9 +178,10 @@ const AddTicket = () => {
     setLoading(true);
 
     const formattedParams = Object.entries(formData)
-  .filter(([key, value]) => key !== 'department') // Exclude departmentName
-  .map(([key, value]) => `${key}=${value}`)
+  .filter(([key, value]) => key !== 'department' ) // Exclude departmentName and creatorName
+  .map(([key, value]) => `${key === 'creatorName' ? 'creatorId' : key}=${key === 'creatorName' ? user.userId : value}`)
   .join('&');
+
 
   
 
@@ -215,7 +217,7 @@ const AddTicket = () => {
 
 
       setFormData({
-        email: user.email,
+        creatorName: user.firstName,
         priority: 'low',
         title: '',
         departmentId: '',
@@ -224,7 +226,7 @@ const AddTicket = () => {
         projectId: '',
         dueDate: '',
         description: '',
-        assigneeEmail: '',
+        assigneeId: '',
         attachments: null
       });
       navigate(`/Tickets/AddTicket/${res.data.userId}`);
@@ -234,7 +236,7 @@ const AddTicket = () => {
       setLoading(false);
     }
   };
-
+console.log(formData)
   return (
     <div className="container mt-5">
       <div className='d-flex justify-content-between'></div>
@@ -249,18 +251,18 @@ const AddTicket = () => {
         {/* ticketId */}
         <div className="row mb-3">
 
-          <label htmlFor="email" className="col-sm-3 col-form-label text-end">
+          <label htmlFor="creatorName" className="col-sm-3 col-form-label text-end">
             Creator
           </label>
           <div className="col-sm-3">
             <input
               type="text"
               className="form-control"
-              id="email"
-              name="email"
-              placeholder="Enter your Email"
+              id="creatorName"
+              name="creatorName"
+              placeholder="Enter your Name"
               required
-              value={user.email}
+              value={user.firstName}
               onChange={handleInputChange}
               disabled
             />
@@ -268,24 +270,26 @@ const AddTicket = () => {
           </div>
 
           {/* priority */}
-          <label htmlFor="assigneeEmail" className="col-sm-3 col-form-label text-end">
-            Assignee Email<span className="text-danger"> * </span>
+          <label htmlFor="assigneeId" className="col-sm-3 col-form-label text-end">
+            Assignee Name<span className="text-danger"> * </span>
           </label>
           <div className="col-sm-3">
             <Select
               options={Assignee.map((Setas) => ({
-                label: Setas.email,
-                value: Setas.email,
+                label: Setas.fullName,
+                value: Setas.userId,
               }))}
-              value={formData.assigneeEmail ? { label: formData.assigneeEmail, value: formData.assigneeEmail } : null}
+              value={formData.assigneeId ? { label: Assignee.find(t=>t.userId === formData.assigneeId).fullName, value: formData.assigneeId } : null}
               onChange={(selectedOption) =>
                 handleInputChange({
-                  target: { name: 'assigneeEmail', value: selectedOption ? selectedOption.value : '' },
+                  target: { name: 'assigneeId', value: selectedOption.value },
                 })
               }
              
               isSearchable
-              placeholder="Select Ticket Type"
+              placeholder="Select Assignee"
+
+             
             />
           </div>
         </div>
@@ -433,15 +437,16 @@ const AddTicket = () => {
           </label>
           <div className="col-sm-3">
             {/* <input
+            type="text"
               className="form-control"
               id="department"
               name="department"
-              value={formData.departmentId || ''}
+              value={formData.department}
               required
               onChange={handleInputChange}
-              readOnly
-              disabled
-            /> */}
+               */}
+              
+            
             <Select
               value={{ value: formData.departmentId, label: formData.department }}
               components={{ DropdownIndicator:() => null, IndicatorSeparator:() => null }}

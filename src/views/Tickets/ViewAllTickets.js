@@ -61,13 +61,13 @@ const ViewAllTickets = () => {
       try {
         let filteredResults = [...tickets];
 
-        if (priorityFilter !== 'All') {
-          filteredResults = filteredResults.filter(ticket => ticket.priority.toLowerCase() === priorityFilter.toLowerCase());
-        }
+        // if (priorityFilter !== 'All') {
+        //   filteredResults = filteredResults.filter(ticket => ticket.priority.toLowerCase() === priorityFilter.toLowerCase());
+        // }
 
-        if (statusFilter !== 'All') {
-          filteredResults = filteredResults.filter(ticket => ticket.status.toLowerCase() === statusFilter.toLowerCase());
-        }
+        // if (statusFilter !== 'All') {
+        //   filteredResults = filteredResults.filter(ticket => ticket.status.toLowerCase() === statusFilter.toLowerCase());
+        // }
 
         setFilteredTickets(filteredResults);
       } catch (error) {
@@ -76,7 +76,7 @@ const ViewAllTickets = () => {
     };
 
     applyFilters();
-  }, [tickets, priorityFilter, statusFilter]);
+  }, [tickets]);
 
   useEffect(() => { 
     const fetchTickets = async () => { 
@@ -106,7 +106,7 @@ const ViewAllTickets = () => {
           <div className='d-flex justify-content-between mb-3'>
             <h4>All Tickets</h4>
             <div className='d-flex gap-2 align-items-center'>
-              <DropdownButton title={`Priority: ${priorityFilter}`} variant="info">
+              {/* <DropdownButton title={`Priority: ${priorityFilter}`} variant="info">
                 <Dropdown.Item onClick={() => setPriorityFilter('All')}>All</Dropdown.Item>
                 <Dropdown.Item onClick={() => setPriorityFilter('High')}>High</Dropdown.Item>
                 <Dropdown.Item onClick={() => setPriorityFilter('medium')}>Medium</Dropdown.Item>
@@ -119,7 +119,7 @@ const ViewAllTickets = () => {
                 <Dropdown.Item onClick={() => setStatusFilter('Pending')}>Pending</Dropdown.Item>
                 <Dropdown.Item onClick={() => setStatusFilter('Unassigned')}>Unassigned</Dropdown.Item>
                 <Dropdown.Item onClick={() => setStatusFilter('Completed')}>Completed</Dropdown.Item>
-              </DropdownButton>
+              </DropdownButton> */}
               {hasPermission(2, 'canAddOnly') && (
                 <Button type="button" className="btn btn-primary" onClick={onClickAddTicket}>
                   Add Ticket

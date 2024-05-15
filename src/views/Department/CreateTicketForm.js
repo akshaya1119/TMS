@@ -1,8 +1,8 @@
 import React from 'react'; 
-import { Button, Form, Collapse } from 'react-bootstrap'; // Import Collapse 
+import { Button, Form, Collapse,Spinner } from 'react-bootstrap'; // Import Collapse 
 import PropTypes from 'prop-types'; 
  
-const CreateTicketForm = ({ newTicketType, setNewTicketType, handleCreateTicketType, openTicketType }) => { 
+const CreateTicketForm = ({ newTicketType, setNewTicketType, handleCreateTicketType, openTicketType,loading }) => { 
     return ( 
         <Collapse in={openTicketType}> 
             <div id="create-TicketType-collapse"> 
@@ -14,20 +14,20 @@ const CreateTicketForm = ({ newTicketType, setNewTicketType, handleCreateTicketT
                         <div className="card-body"> 
                             <Form onSubmit={handleCreateTicketType}> 
                                 <div className="form-group"> 
-                                    <label htmlFor="TicketType">Enter New TicketType:</label> 
+                                    <label htmlFor="TicketType"></label> 
                                     <input 
                                         required="" 
                                         className="form-control" 
                                         name="TicketType" 
                                         id="TicketType" 
                                         type="text" 
+                                        placeholder='Enter New TicketType'
                                         value={newTicketType} 
                                         onChange={(e) => setNewTicketType(e.target.value)} 
                                     /> 
                                 </div> 
-                                <Button type="submit" className="btn"> 
-                                    Submit 
-                                </Button> 
+                                <Button type="submit" className="btn mt-2" disabled= {loading}>{loading ? <><Spinner animation="border" size='sm' /> Adding TicketType...</> : "Submit"}</Button> 
+
                             </Form> 
                         </div> 
                     </div> 
@@ -41,6 +41,8 @@ const CreateTicketForm = ({ newTicketType, setNewTicketType, handleCreateTicketT
             setNewTicketType: PropTypes.func.isRequired, 
             handleCreateTicketType: PropTypes.func.isRequired, 
             openTicketType: PropTypes.bool.isRequired, 
+            loading: PropTypes.bool.isRequired,
+
           }; 
            
           export default CreateTicketForm;

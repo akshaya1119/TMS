@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { Row, Col, Button, Form, Modal } from 'react-bootstrap';
+import { Row, Col, Button, Form, Modal,Spinner } from 'react-bootstrap';
 import './EditTicket.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCommentDots, faPaperclip, faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -45,7 +45,7 @@ const EditTicket = () => {
   const decryptid = decrypt(ticketId);
   const [formData, setFormData] = useState({
     ticketId: '',
-    email: '',
+    creatorName: '',
     priority: '',
     title: '',
     department: '',
@@ -54,8 +54,8 @@ const EditTicket = () => {
     project: '',
     dueDate: '',
     description: '',
-    assigneeEmail: '',
-    userAssigneeEmail: '',
+    assigneeName: '',
+    userAssigneeName: '',
     userTicketType: '',
     userStatus: '',
     userPriority: '',
@@ -74,7 +74,8 @@ const EditTicket = () => {
   const [isImageAttachment, setIsImageAttachment] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
   const [hovered, setHovered] = useState(false);
-
+  const [currentUser, setCurrentUser] = useState({});
+  const [loading, setLoading] = useState(false);
 
 
 
@@ -92,6 +93,8 @@ const EditTicket = () => {
         setOldDetails(ticketResponse.data);
         setComments(commentsResponse.data);
         setAssignees(assigneesResponse.data);
+        setCurrentUser(assigneesResponse.data.filter(cu => cu.userId === user.userId)[0])
+        console.log(assigneesResponse.data.filter(cu => cu.userId === user.userId)[0])
         setTicketTypes(ticketTypesResponse.data);
       } catch (error) {
         console.error('Error fetching Ticket, Comments, Assignees, and Ticket Types:', error);
@@ -141,7 +144,8 @@ const EditTicket = () => {
       console.log("Last Comment:", lastComment);
       setFormData({
         ...formData, 
-        userAssigneeEmail: lastComment.newAssigneeEmail,
+        userAssigneeName: lastComment.newAssigneeName,
+        userAssigneeId:lastComment.newAssigneeId,
         userTicketType: lastComment.newTicketType, 
         userStatus: lastComment.newStatus,
         userPriority: lastComment.newPriority,
@@ -149,7 +153,7 @@ const EditTicket = () => {
       });
       console.log("Updated Form Data:", {
         ...formData,
-        userAssigneeEmail: lastComment.newAssigneeEmail,
+        userAssigneeName: lastComment.newAssigneeName,
         userTicketType: lastComment.newTicketType, 
         userStatus: lastComment.newStatus,
         userPriority: lastComment.newPriority,
@@ -158,7 +162,8 @@ const EditTicket = () => {
       // If there are no comments, set the initial state of the form fields with the details of the ticket
       setFormData({
         ...formData,
-        userAssigneeEmail: formData.assigneeEmail, 
+        userAssigneeName: formData.assigneeName,
+        userAssigneeId: formData.assigneeId, 
         userTicketType: formData.ticketType,
         userStatus: formData.status, 
         userPriority: formData.priority,
@@ -179,11 +184,12 @@ const EditTicket = () => {
 
   const handleUserSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
 
     // Check if the current user is the creator, assignee, or reassignee
-    const isCreator = user.email === formData.email;
-    const isAssignee = user.email === formData.assigneeEmail;
-    const isReassignee = user.email === formData.userAssigneeEmail;
+    const isCreator = currentUser.fullName === formData.creatorName;
+    const isAssignee = currentUser.fullName === formData.assigneeName;
+    const isReassignee = currentUser.fullName === formData.userAssigneeName;
 
     if (!isCreator && !isAssignee && !isReassignee) {
       setMessage('You are not authorized to comment on this ticket.');
@@ -192,13 +198,13 @@ const EditTicket = () => {
 
     try {
       const params = {
-        firstName: user.firstName,
-        prev: formData.priority,
+        
+        prev: formData.assigneeId,
         pre: formData.status,
         newp: formData.userPriority,
         pret: formData.userTicketTypeId,
         newt: formData.userTicketTypeId,
-        newa: formData.userAssigneeEmail,
+        newa: formData.userAssigneeId,
         news: formData.userStatus,
         prep: formData.priority,
         ticketid: formData.ticketId,
@@ -230,6 +236,8 @@ const EditTicket = () => {
       setComments([...comments, response.data]);
       setNewComment('');
       setMessage('Comment submitted successfully!');
+      handleToggleUserComment()
+      setLoading(false);
       // Update old details after successful comment submission
       setOldDetails(formData);
     } catch (error) {
@@ -313,16 +321,16 @@ console.log(formData)
 
       <Row>
         <Col>
-          <label htmlFor="email" className="col-form-label text-end">
+          <label htmlFor="creatorName" className="col-form-label text-end">
             CreatorID:
           </label>
           <div className="">
             <input
               type="text"
               className="form-control"
-              id="email"
-              name="email"
-              value={formData.email}
+              id="creatorName"
+              name="creatorName"
+              value={formData.creatorName}
               required
               disabled
             />
@@ -484,11 +492,11 @@ console.log(formData)
                     Assignee:
                   </Form.Label>
                   <Col sm={8}>
-                    <Form.Select value={formData.assigneeEmail} onChange={handleInputChange} name="assigneeEmail" disabled>
+                    <Form.Select value={formData.assigneeName} onChange={handleInputChange} name="assigneeName" disabled>
                       <option value="">Select Assignee</option>
                       {assignees.map((assignee) => (
-                        <option key={assignee.id} value={assignee.email}>
-                          {assignee.email}
+                        <option key={assignee.id} value={assignee.id}>
+                          {assignee.fullName}
                         </option>
                       ))}
                     </Form.Select>
@@ -517,7 +525,7 @@ console.log(formData)
                     <Form.Select value={formData.status} onChange={handleInputChange} name="status" disabled>
                       <option value="Open">Open</option>
                       <option value="Pending">Pending</option>
-                      <option value="Unassigned">Unassigned</option>
+                      <option value="Self-Assigned">Self-Assigned</option>
                       <option value="Completed">Completed</option>
                     </Form.Select>
                   </Col>
@@ -549,7 +557,7 @@ console.log(formData)
                   </label>
                   <div className="mb-3">
                     {/* Use ReactQuill only for the user's comment */}
-                    <ReactQuill
+                    <ReactQuill 
                       value={newComment}
                       onChange={handleUserCommentChange}
                       modules={{ toolbar: toolbarOptions }}
@@ -574,11 +582,12 @@ console.log(formData)
                         Assignee:
                       </Form.Label>
                       <Col sm={8}>
-                        <Form.Select value={formData.userAssigneeEmail} onChange={handleInputChange} name="userAssigneeEmail">
-                          <option value="">Select Assignee Email</option>
+                        <Form.Select value={formData.userAssigneeId} onChange={handleInputChange} name="userAssigneeId">
+                          <option value="">Select Assignee </option>
                           {assignees.map((assignee) => (
-                            <option key={assignee.id} value={assignee.email}>
-                              {assignee.email}
+                            <option key={assignee.userId} value={assignee.userId}>
+                              {assignee.fullName}
+                              {console.log(formData)}
                             </option>
                           ))}
                         </Form.Select>
@@ -609,7 +618,7 @@ console.log(formData)
                           <option value="">Select Status</option>
                           <option value="Open">Open</option>
                           <option value="Pending">Pending</option>
-                          <option value="Unassigned">Unassigned</option>
+                          <option value="Self-Assigned">Self-Assigned</option>
                           <option value="Completed">Completed</option>
                         </Form.Select>
                       </Col>
@@ -629,8 +638,9 @@ console.log(formData)
                     </Form.Group>
                   </Form>
                 </Row>
-                <Button className="mt-3" onClick={handleUserSubmit}>
-                  Submit Your Comment
+                <Button className="mt-3" onClick={handleUserSubmit} disabled={loading}>
+                {loading ? <><Spinner animation="border" size='sm' /> Submitting Comment...</> : "Submit Your Comment"}
+                  
                 </Button>
               </Col>
             </Row>
@@ -642,7 +652,7 @@ console.log(formData)
                 <Col md={7}>
                   <div className="d-flex align-items-center justify-content-between mb-3">
                     <label htmlFor="description" className="col-form-label text-end">
-                      <p>Comment by {comment.firstName} at {new Date(comment.timestamp).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+                      <p>Comment by {comment.newAssigneeName} at {new Date(comment.timestamp).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
                     </label>
                   </div>
                   <div className="mb-3">
@@ -652,7 +662,7 @@ console.log(formData)
                       <div>
                         <strong></strong>
                         <a href={`${baseapi}/${comment.attachment.replace('wwwroot/', '')}`} target="_blank" rel="noopener noreferrer">
-                          {'View Attachment'}
+                          <Button>{'View Attachment'}</Button>
                         </a>
                       </div>
                     )}
@@ -668,8 +678,8 @@ console.log(formData)
                         Assignee:
                       </Form.Label>
                       <Col sm={8}>
-                        <Form.Select name="assigneeEmail" disabled>
-                          <option value="">{comment.newAssigneeEmail}</option>
+                        <Form.Select name="assigneeName" disabled>
+                          <option value="">{comment.newAssigneeName}</option>
 
                         </Form.Select>
                       </Col>

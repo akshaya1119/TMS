@@ -74,7 +74,7 @@ const InfoAndPermission = () => {
 
     const fetchAssignedTicketsCount = async () => {
         try {
-            const response = await fetch(`${ticketapi}/status-count?email=${userDetails.email}`);
+            const response = await fetch(`${ticketapi}/status-count?id=${userDetails.userId}`);
             if (!response.ok) {
                 throw new Error(`Error fetching assigned tickets count: ${response.status}`);
             }
@@ -90,7 +90,7 @@ const InfoAndPermission = () => {
 
     const fetchResolvedTicketsCount = async () => {
         try {
-            const response = await fetch(`${ticketapi}/status-count?email=${userDetails.email}`);
+            const response = await fetch(`${ticketapi}/status-count?id=${userDetails.userId}`);
             if (!response.ok) {
                 throw new Error(`Error fetching resolved tickets count: ${response.status}`);
             }

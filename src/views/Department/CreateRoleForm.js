@@ -1,8 +1,8 @@
 import React from 'react'; 
-import { Button, Form, Collapse } from 'react-bootstrap'; // Import Collapse 
+import { Button, Form, Collapse,Spinner } from 'react-bootstrap'; // Import Collapse 
 import PropTypes from 'prop-types'; 
  
-const CreateDesignationForm = ({ newDesignation, setNewDesignation, handleCreateDesignation, openCreateDesignation}) => { 
+const CreateDesignationForm = ({ newDesignation, setNewDesignation, handleCreateDesignation, openCreateDesignation,loading}) => { 
     return ( 
         <Collapse in={openCreateDesignation}> 
         <div id="create-designation-collapse"> 
@@ -14,7 +14,7 @@ const CreateDesignationForm = ({ newDesignation, setNewDesignation, handleCreate
                     <div className="card-body"> 
                         <Form onSubmit={handleCreateDesignation}> 
                             <div className="form-group"> 
-                                <label htmlFor="designation">Enter New Designation:</label> 
+                                <label htmlFor="designation"></label> 
                                 <input 
                                     required="" 
                                     className="form-control" 
@@ -22,12 +22,12 @@ const CreateDesignationForm = ({ newDesignation, setNewDesignation, handleCreate
                                     id="designation" 
                                     type="text" 
                                     value={newDesignation} 
+                                    placeholder='Enter New Designation'
                                     onChange={(e) => setNewDesignation(e.target.value)} 
                                 /> 
                             </div> 
-                            <Button type="submit" className="btn"> 
-                                Submit 
-                            </Button> 
+                            <Button type="submit" className="btn mt-2" disabled= {loading}>{loading ? <><Spinner animation="border" size='sm' /> Adding Designation...</> : "Submit"}</Button> 
+
                         </Form> 
                     </div> 
                 </div> 
@@ -41,6 +41,8 @@ CreateDesignationForm.propTypes = { // Define prop types
     setNewDesignation: PropTypes.func.isRequired, 
     handleCreateDesignation: PropTypes.func.isRequired, 
     openCreateDesignation: PropTypes.bool.isRequired, 
+    loading: PropTypes.bool.isRequired,
+
   }; 
    
   export default CreateDesignationForm;
