@@ -6,7 +6,7 @@ import './scss/style.scss'
 import { UserProvider } from './context/UserContext';
 import PrivateRoute from './components/PrivateRoute'
 import { NotificationProvider } from './components/NotificationContext';
-import useSignalR from './components/useSignalR';
+import { ProfileImageProvider } from './context/ProfileImageProvider'
 
 
 // Containers
@@ -24,7 +24,6 @@ const AccessDeniedPage = React.lazy(()=> import('./views/pages/page403/AccessDen
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const storedTheme = useSelector((state) => state.theme)
-  const signalRConnection = useSignalR();
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.href.split('?')[1])
     const theme = urlParams.get('theme') && urlParams.get('theme').match(/^[A-Za-z0-9\s]+/)[0]
@@ -40,9 +39,9 @@ const App = () => {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-
+    <ProfileImageProvider>
     <UserProvider >
-    <NotificationProvider signalRConnection={signalRConnection}>
+    <NotificationProvider>
     <HashRouter>
       <Suspense
         fallback={
@@ -65,6 +64,7 @@ const App = () => {
     </HashRouter>
     </NotificationProvider>
     </UserProvider>
+    </ProfileImageProvider>
   )
 }
 

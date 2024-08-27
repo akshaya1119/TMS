@@ -22,18 +22,19 @@ const TicketsTable = ({ tickets, hasPermission, setTickets }) => {
   const tableRef = useRef(null);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showAttachmentModal, setShowAttachmentModal] = useState(false);
-  const [isImageAttachment, setIsImageAttachment] = useState(false);
   const { encrypt } = useSecurity();
-  const {user} = useUser();
+  const { user } = useUser();
 
-  const handleCloseAttachmentModal = () => {
-    setShowAttachmentModal(false);
-  };
+
 
   useEffect(() => {
     const fetchComments = async (ticketId) => {
       try {
-        const response = await fetch(`${commentapi}/${ticketId}`);
+        const response = await fetch(`${commentapi}/${ticketId}`, {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          }
+        });
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -48,14 +49,14 @@ const TicketsTable = ({ tickets, hasPermission, setTickets }) => {
     tickets.forEach((ticket) => {
       fetchComments(ticket.ticketId);
     });
-  }, [tickets]);
+  }, [tickets, user?.token]);
+
 
   useEffect(() => {
     if (tableRef.current) {
-      
+
       $(tableRef.current).DataTable();
-      // $(tableRef.current).DataTable().clear();
-      // $(tableRef.current).DataTable().row.add(tickets).draw();
+
     }
   }, []);
 
@@ -74,19 +75,31 @@ const TicketsTable = ({ tickets, hasPermission, setTickets }) => {
     setShowConfirmationModal(false);
   };
 
+  const handleArchiveTicket = async () => {
+    if (!selectedTicket || !user?.token || !user?.userId) {
+      console.error('Missing required information for archiving ticket.');
+      return;
+    }
 
-  const handleArchiveTicket = () => {
-    console.log('Archiving ticket:', selectedTicket);
-    // Make API call to archive the ticket 
-    axios.post(`${ticketapi}/${selectedTicket.ticketId}/archive?userId=${user.userId}`)
-      .then(response => {
-        console.log('Ticket archived successfully:', response.data);
-        // Update tickets state in the parent component by removing the archived ticket 
-        setTickets(tickets.filter(ticket => ticket.ticketId !== selectedTicket.ticketId));
-      })
-      .catch(error => {
-        console.error('Error archiving ticket:', error);
-      });
+
+    try {
+      const response = await axios.post(
+        `${ticketapi}/${selectedTicket.ticketId}/archive?userId=${user.userId}`,
+        { userId: user.userId }, // Payload, if needed
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      );
+
+
+      // Update tickets state by removing the archived ticket
+      setTickets(tickets.filter(ticket => ticket.ticketId !== selectedTicket.ticketId));
+    } catch (error) {
+      console.error('Error archiving ticket:', error.response ? error.response.data : error.message);
+    }
+
     handleCloseConfirmationModal();
   };
 
@@ -103,7 +116,7 @@ const TicketsTable = ({ tickets, hasPermission, setTickets }) => {
             <th>TicketType</th>
             <th>DueDate</th>
             <th>Department</th>
-            <th>ProjectType</th>
+            <th>Project</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -130,13 +143,14 @@ const TicketsTable = ({ tickets, hasPermission, setTickets }) => {
                     </Tooltip>
                   }
                 >
-                  <span className='text-truncate d-inline-block ' style={{maxWidth: '150px'}}>{ticket.title}</span>
+                  <span className='text-truncate d-inline-block ' style={{ maxWidth: '150px' }}>{ticket.title}</span>
                 </OverlayTrigger>
               </td>
               <td>{ticket.status}</td>
               <td>{ticket.priority}</td>
               <td>{ticket.ticketType}</td>
-              <td>{new Date(ticket.dueDate).toLocaleString()}</td>
+              <td>{new Date(ticket.dueDate).toLocaleDateString()}</td>
+
               <td>{ticket.department}</td>
               <td>{ticket.project}</td>
               <td>
@@ -202,17 +216,37 @@ const TicketsTable = ({ tickets, hasPermission, setTickets }) => {
             <p>Attachments:</p>
             {selectedTicket.attachment && (
               <div>
-                {isImageAttachment && /\.(png|jpg|jpeg|gif|bmp)$/i.test(selectedTicket.attachment) ? (
-                  <img src={`${baseapi}/${selectedTicket.attachment.replace('wwwroot/', '')}`} alt="Attachment" className="img-fluid" />
-                ) : (
-                  <p>
-                    <a href={`${baseapi}/${selectedTicket.attachment.replace('wwwroot/', '')}`} target="_blank" rel="noopener noreferrer">
-                      View Attachment
-                    </a>
-                  </p>
-                )}
+                {selectedTicket.attachment.split(';').map((attachment, index) => {
+                  // Check if the attachment is an image based on its extension
+                  const isImageAttachment = /\.(png|jpg|jpeg|gif|bmp)$/i.test(attachment);
+
+                  // Construct the URL for the attachment
+                  const attachmentUrl = `${baseapi}/${attachment.replace('wwwroot/', '')}`;
+
+                  return (
+                    <div key={index} className="mb-2">
+                      {isImageAttachment ? (
+                        // Render image directly if it's an image
+                        <img
+                          src={attachmentUrl}
+                          alt={`Attachment ${index + 1}`}
+                          className="img-fluid"
+                          style={{ maxWidth: '100%', height: 'auto' }}
+                        />
+                      ) : (
+                        // Render a link for other file types
+                        <p>
+                          <a href={attachmentUrl} target="_blank" rel="noopener noreferrer">
+                            View Attachment {index + 1}
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
+
           </Modal.Body>
 
           <Modal.Footer>
@@ -238,7 +272,7 @@ TicketsTable.propTypes = {
       ticketType: PropTypes.string.isRequired,
       dueDate: PropTypes.string.isRequired,
       department: PropTypes.string.isRequired,
-      projectType: PropTypes.string.isRequired,
+      project: PropTypes.string.isRequired,
     })
   ).isRequired,
   hasPermission: PropTypes.func.isRequired,

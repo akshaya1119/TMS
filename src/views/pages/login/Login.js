@@ -25,6 +25,7 @@ const Login = () => {
     // State variable to track loading state
     const [loading, setLoading] = useState(false); 
     const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const theme = '#4B49B6';
 
     useEffect(() => {
       // Redirect if the user is already logged in
@@ -106,7 +107,7 @@ const Login = () => {
   };
 
   return (
-    <PageLayout bgimg={'bgimg'}>
+    <PageLayout bgimg={'bgimg'} theme={theme}>
     {isLoggedIn() ? (
       <div className="text-center">
         <Spinner animation="border" role="status">

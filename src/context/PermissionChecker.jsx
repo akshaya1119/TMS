@@ -15,10 +15,13 @@ const PermissionChecker = ({ children }) => {
     const fetchPermissions = async () => {
       try {
         const userId = user.userId; // Assuming you are using a fixed userId for now
-        const response = await axios.get(`${permissionapi}/ByUser/${userId}`);
+        const response = await axios.get(`${permissionapi}/ByUser/${userId}`,{
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        });
         setUserPermissions(response.data);
         setLoading(false);
-        console.log(response.data);
       } catch (error) {
         console.error('Error fetching permissions:', error);
         setLoading(false);
@@ -28,6 +31,7 @@ const PermissionChecker = ({ children }) => {
     fetchPermissions();
   }, [user]);
 
+  
   const hasPermission = (moduleId, permissionType) => {
     const modulePermissions = userPermissions.find(p => p.id === moduleId);
     return modulePermissions && modulePermissions[permissionType];

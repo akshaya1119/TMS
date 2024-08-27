@@ -4,7 +4,7 @@ import { Button, Form } from 'react-bootstrap'; // Import Collapse
 import PropTypes from 'prop-types'; // Import PropTypes 
 
 
-const DepartmentList = ({ departments, handleEdit, handleEditSubmit, newDepartment, setNewDepartment, editItem, searchQuery }) => {
+const DepartmentList = ({ departments, handleEdit, handleEditSubmit, newDepartment, setNewDepartment, editItem, searchQuery,errorMessage }) => {
     // const [searchQuery, setSearchQuery] = useState(''); 
 
     return (
@@ -25,9 +25,9 @@ const DepartmentList = ({ departments, handleEdit, handleEditSubmit, newDepartme
                                     .filter((dept) =>
                                         dept.departmentName?.toLowerCase().includes(searchQuery.toLowerCase())
                                     )
-                                    .map((dept) => (
+                                    .map((dept,index) => (
                                         <tr key={dept.departmentId} className="table-row mt-1">
-                                             <td className="col col-3" data-label="S.No">{dept.departmentId}</td> 
+                                             <td className="col col-3" data-label="S.No">{index+1}</td> 
                                             {/* <td className="col col-6" data-label="Department"> */} 
                                             {
                                                 editItem && editItem.departmentId === dept.departmentId ?
@@ -50,7 +50,7 @@ const DepartmentList = ({ departments, handleEdit, handleEditSubmit, newDepartme
                                                         <>
                                                             <td className="col col-3" data-label="S.No">{dept.departmentName}</td>
                                                             <td className="col col-6">
-
+                                                          
                                                                 <Button variant="outline-primary" size="sm" onClick={() => handleEdit(dept)}>
                                                                     <i className="fa-solid fa-pencil"></i>
                                                                 </Button>
@@ -64,6 +64,7 @@ const DepartmentList = ({ departments, handleEdit, handleEditSubmit, newDepartme
                         </table>
                     </div>
                 </div>
+                        {errorMessage && <div className='text-danger text-end'>{errorMessage}</div>}
             </div>
         </div>
     );
@@ -77,9 +78,9 @@ DepartmentList.propTypes = { // Define prop types
     handleEditSubmit: PropTypes.func.isRequired,
     newDepartment: PropTypes.string.isRequired,
     setNewDepartment: PropTypes.func.isRequired,
-    searchQuery: PropTypes.func.isRequired,
+    searchQuery: PropTypes.string.isRequired,
     editItem: PropTypes.object,
-
+    errorMessage : PropTypes.string.isRequired,
 };
 
 export default DepartmentList;

@@ -7,7 +7,7 @@ import { Spinner } from 'react-bootstrap';
  
 
 
-const CreateDepartmentForm = ({ newDepartment, setNewDepartment, handleCreateDepartment, openCreateDepartment, loading}) => { 
+const CreateDepartmentForm = ({ newDepartment, setNewDepartment, handleCreateDepartment, openCreateDepartment, loading,  errorMessage}) => { 
   return ( 
     <Collapse in={openCreateDepartment}> 
       <div id="create-department-collapse"> 
@@ -31,7 +31,9 @@ const CreateDepartmentForm = ({ newDepartment, setNewDepartment, handleCreateDep
                     onChange={(e) => setNewDepartment(e.target.value)} 
                   /> 
                 </div > 
+                {errorMessage && <div className='text-danger text-end'>{errorMessage}</div>}
                 <Button type="submit" className="btn mt-2" disabled= {loading}>{loading ? <><Spinner animation="border" size='sm' /> Adding Department...</> : "Submit"}</Button> 
+               
               </Form> 
             </div> 
           </div> 
@@ -49,6 +51,7 @@ CreateDepartmentForm.propTypes = { // Define prop types
   handleCreateDepartment: PropTypes.func.isRequired, 
   openCreateDepartment: PropTypes.bool.isRequired, 
   loading: PropTypes.bool.isRequired,
+  errorMessage : PropTypes.string.isRequired,
 }; 
  
 export default CreateDepartmentForm;

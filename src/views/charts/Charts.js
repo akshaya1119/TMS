@@ -30,7 +30,13 @@ const Charts = () => {
     const fetchCountsAndTickets = async () => {
       try {
         // Fetch counts
-        const countsResponse = await fetch(`${Tickets}/status-count?id=${user.userId}`);
+        const countsResponse = await fetch(`${Tickets}/status-count?id=${user.userId}`,
+        {
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        },
+        );
         const countsData = await countsResponse.json();
         setCounts({
           open: countsData.openCount,
@@ -40,7 +46,13 @@ const Charts = () => {
         });
   
         // Fetch tickets
-        const ticketsResponse = await fetch(`${Tickets}/ByUser?Id=${user.userId}`);
+        const ticketsResponse = await fetch(`${Tickets}/ByUser?Id=${user.userId}`,
+        {
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        },
+        );
         const ticketsData = await ticketsResponse.json();
         setTickets(ticketsData);
         setLoading(false);

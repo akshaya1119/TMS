@@ -3,36 +3,52 @@ import { Container, Row, Col, Card, Alert, Table, Form, Button } from 'react-boo
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import { useSecurity } from './../../context/Security';
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 import PermissionChecker from './../../context/PermissionChecker';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from 'src/context/UserContext';
 
-const ApiBaseUrl = process.env.REACT_APP_BASE_URL
+const ApiBaseUrl = process.env.REACT_APP_BASE_URL;
 
-const UpdatePermissionPage = ({userid}) => {
-    const userId = userid
-    const { decrypt } = useSecurity();
+const UpdatePermissionPage = ({ userId }) => {
+   
+    const {user} = useUser();
+    const { encrypt } = useSecurity();
     const [permissions, setPermissions] = useState([]);
     const [modules, setModules] = useState([]);
     const [loading, setLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [selectedPermissionId, setSelectedPermissionId] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchPermissions = async () => {
             try {
-                const response = await axios.get(`${ApiBaseUrl}/api/Permission/ByUser/${userId}`);
-                setPermissions(response.data);
+                const response = await axios.get(`${ApiBaseUrl}/api/Permission/ByUser/${userId}`,{
+                    headers:{
+                      Authorization : `Bearer ${user?.token}`,
+                    }
+                  });
+                if (response.data && response.data.length === 0) {
+                    setErrorMessage('No permissions have been assigned to this user. Thank You');
+                } else {
+                    setPermissions(response.data);
+                    setErrorMessage(''); // Clear error message if permissions are found
+                }
             } catch (error) {
                 console.error('Error fetching permissions:', error);
-                setErrorMessage('Error fetching permissions. Please try again.');
+                setErrorMessage('Error fetching permissions.');
             }
         };
 
         const fetchModules = async () => {
             try {
-                const response = await axios.get(`${ApiBaseUrl}/api/Modules`);
-                
+                const response = await axios.get(`${ApiBaseUrl}/api/Modules`,{
+                    headers:{
+                      Authorization : `Bearer ${user?.token}`,
+                    }
+                  });
                 setModules(response.data);
             } catch (error) {
                 console.error('Error fetching modules:', error);
@@ -83,7 +99,6 @@ const UpdatePermissionPage = ({userid}) => {
             setSelectedPermissionId(permissionId);
 
             const updatedPermission = updatedPermissions.find(permission => permission.permission_Id === permissionId);
-            console.log('Updated Permission:', updatedPermission);
             if (!updatedPermission) {
                 setErrorMessage('Updated permission not found. Please try again.');
                 return;
@@ -98,7 +113,11 @@ const UpdatePermissionPage = ({userid}) => {
                 canDeleteOnly,
                 canUpdateOnly,
                 canViewOnly
-            });
+            },{
+                headers:{
+                  Authorization : `Bearer ${user?.token}`,
+                }
+              });
             setSuccessMessage('Permissions updated successfully');
         } catch (error) {
             console.error('Error updating permissions:', error);
@@ -108,39 +127,42 @@ const UpdatePermissionPage = ({userid}) => {
         }
     };
 
+    const handleAssignPermissions = () => {
+        navigate(`/Users/AddPermissions/${encrypt(userId)}`);
+    };
+
     const getModuleNameById = (moduleId) => {
         const module = modules.find(m => m.id === moduleId);
-        
         return module ? module.name : 'Unknown';
     };
 
     return (
         <PermissionChecker>
-        {({hasPermission}) => ( 
+        {({ hasPermission }) => (
             hasPermission(7, 'canUpdateOnly') &&  // Check if user has permission to update permissions
 
-        <Container>
-            {successMessage && !loading && <Alert variant="success" className="mt-3">{successMessage}</Alert>}
-            {errorMessage && !loading && <Alert variant="danger" className="mt-3">{errorMessage}</Alert>}
-            <Row className="justify-content-center">
-                <Col md={12}>
-                    <Card>
-                        <Card.Header as="h5" className="text-center">Update Permissions</Card.Header>
-                        <Card.Body>
-                            <Form className='table-responsive'>
-                                <Table bordered>
-                                    <thead>
-                                        <tr>
-                                            <th>Module Name</th>
-                                            <th>Can View</th>
-                                            <th>Can Add</th>
-                                            <th>Can Update</th>
-                                            <th>Can Delete</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {permissions.length >
-                                            0 && permissions.map(permission => (
+            <Container>
+                {successMessage && !loading && <Alert variant="success" className="mt-3">{successMessage}</Alert>}
+                {errorMessage && !loading && <Alert variant="danger" className="mt-3">{errorMessage}</Alert>}
+                
+                <Row className="justify-content-center">
+                    <Col md={12}>
+                        <Card>
+                            <Card.Header as="h5" className="text-center">Update Permissions</Card.Header>
+                            <Card.Body>
+                                <Form className='table-responsive'>
+                                    <Table bordered>
+                                        <thead>
+                                            <tr>
+                                                <th>Module Name</th>
+                                                <th>Can View</th>
+                                                <th>Can Add</th>
+                                                <th>Can Update</th>
+                                                <th>Can Delete</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {permissions.length > 0 ? permissions.map(permission => (
                                                 <tr key={permission.permission_Id}>
                                                     <td>{getModuleNameById(permission.id)}</td>
                                                     <td>
@@ -180,21 +202,29 @@ const UpdatePermissionPage = ({userid}) => {
                                                         />
                                                     </td>
                                                 </tr>
-                                            ))}
-                                    </tbody>
-                                </Table>
-                            </Form>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-        </Container>
+                                            )) : (
+                                                <tr>
+                                                    <td colSpan="5" className="text-center">
+                                                        {errorMessage}
+                                                        <Button variant="primary" onClick={handleAssignPermissions}>Assign Permissions</Button>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </Table>
+                                </Form>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            </Container>
         )}
         </PermissionChecker>
     );
 };
 
 UpdatePermissionPage.propTypes = {
-    userid: PropTypes.string.isRequired,
-  };
+    userId: PropTypes.string.isRequired,
+};
+
 export default UpdatePermissionPage;

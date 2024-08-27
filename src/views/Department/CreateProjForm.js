@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Form, Collapse,Spinner} from 'react-bootstrap'; // Import Collapse 
 import PropTypes from 'prop-types'; 
  
-const CreateProjectForm = ({ newProject, setNewProject, handleCreateProjectType, openProject,loading}) => { 
+const CreateProjectForm = ({ newProject, setNewProject, handleCreateProjectType, openProject,loading,errorMessage}) => { 
     return ( 
         <Collapse in={openProject}> 
             <div id="create-Project-collapse"> 
@@ -26,6 +26,7 @@ const CreateProjectForm = ({ newProject, setNewProject, handleCreateProjectType,
                                         onChange={(e) => setNewProject(e.target.value)} 
                                     /> 
                                 </div> 
+                                {errorMessage && <div className='text-danger text-end'>{errorMessage}</div>}
                                 <Button type="submit" className="btn mt-2" disabled= {loading}>{loading ? <><Spinner animation="border" size='sm' /> Adding Project...</> : "Submit"}</Button> 
 
                             </Form> 
@@ -43,7 +44,7 @@ CreateProjectForm.propTypes = { // Define prop types
     handleCreateProjectType: PropTypes.func.isRequired, 
     openProject: PropTypes.bool.isRequired, 
     loading: PropTypes.bool.isRequired,
-
+    errorMessage : PropTypes.string.isRequired,
   }; 
    
   export default CreateProjectForm;

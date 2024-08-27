@@ -4,6 +4,7 @@ import './AddUser.css';
 import { Spinner, Col } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 import { useSecurity } from "./../../context/Security";
+import { useUser } from "src/context/UserContext";
 
 
 const departmentapi = process.env.REACT_APP_API_DEPARTMENTS;
@@ -19,6 +20,7 @@ const AddUser = () => {
   const {encrypt} = useSecurity();
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState([]);
+  const {user} = useUser();
   const [Roles, setRoles] = useState([]);
   const [designations, setDesignation] = useState([]);
   const [formData, setFormData] = useState({
@@ -40,7 +42,11 @@ const AddUser = () => {
   useEffect(() => {
     async function fetchDepartments() {
       try {
-        const response = await axios.get(departmentapi);
+        const response = await axios.get(departmentapi,{
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        });
         setDepartments(response.data);
       } catch (error) {
         console.error('Error fetching departments:', error);
@@ -49,11 +55,14 @@ const AddUser = () => {
 
     fetchDepartments();
   }, []);
-
   useEffect(() => {
     async function fetchRoles() {
       try {
-        const response = await axios.get(`${base}/Roles`);
+        const response = await axios.get(`${base}/Roles`,{
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        });
         setRoles(response.data);
       } catch (error) {
         console.error('Error fetching Roles:', error);
@@ -66,10 +75,13 @@ const AddUser = () => {
   useEffect(() => {
     async function fetchDesignation() {
       try {
-        const response = await axios.get(designationapi);
+        const response = await axios.get(designationapi,{
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        });
 
         setDesignation(response.data);
-        console.log(response.data);
       } catch (error) {
         console.error('Error fetching Designation:', error);
       }
@@ -89,11 +101,22 @@ const AddUser = () => {
   };
 
 
+  const handleKeyPress = (event) => {
+    if (!/[0-9]/.test(event.key)) {
+      event.preventDefault();
+    }
+  };
+
+  const validateEmail = (email) => {
+    // Simple regex for email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
 
   function handleUserSubmit(event) {
     event.preventDefault();
     setLoading(true);
-    console.log(formData);
 
     // Validate Date of Birth
     const currentDate = new Date().toISOString().split('T')[0];
@@ -102,9 +125,23 @@ const AddUser = () => {
       return;
     }
 
-    axios.post(userapi, formData)
+    if (formData.mobileNo.length !== 10) {
+      setMessage('Mobile number must be exactly 10 digits long.');
+      setLoading(false);
+      return;
+    }
+    if (!validateEmail(formData.email)) {
+      setMessage('Email address is in an incorrect format.');
+      setLoading(false);
+      return;
+    }
+
+    axios.post(userapi, formData,{
+      headers:{
+        Authorization : `Bearer ${user?.token}`,
+      }
+    })
       .then(res => {
-        console.log(res)
         setMessage('User added successfully!');
         setLoading(false);
         setFormData({
@@ -138,10 +175,7 @@ const AddUser = () => {
   return (
     <div className=" au container mt-2">
       <div className='text-start mb-12 d-flex justify-content-between'>
-        {/* <h4>Add User</h4>
-        <button type="button" className="btn btn-primary mb-3 " onClick={onClickViewUser}>
-          View Users
-        </button> */}
+      
       </div>
 
       {message && (
@@ -197,6 +231,8 @@ const AddUser = () => {
               placeholder="Enter Mobile No."
               required
               onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
+              maxLength="10"
             />
           </div>
 

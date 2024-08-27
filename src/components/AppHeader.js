@@ -30,6 +30,7 @@ import { AppHeaderDropdown } from './header/index'
 import Badge from 'react-bootstrap/Badge';
 import TicketNotification from '../../src/views/tNotification/TicketNotification';
 import { useUser } from './../context/UserContext'
+import { jwtDecode } from 'jwt-decode';
 
 // import NotificationComponent from './../views/Nots/NotificationComponent'
 
@@ -40,31 +41,65 @@ const ticketapi = process.env.REACT_APP_API_TICKET;
 const AppHeader = () => {
   const headerRef = useRef()
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
-  const { notifications, removeNotification } = useNotification();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
-  const {user}= useUser();
+  const {user,logout }= useUser();
   const [newTickets, setNewTickets] = useState([]);
+  const [sessionExpirationCountdown, setSessionExpirationCountdown] = useState(0);
+
+
+  useEffect(() => {
+    if (user && user.token) {
+      const decodedToken = jwtDecode(user.token);
+      const currentTime = Math.floor(Date.now() / 1000);
+      const expiresIn = decodedToken.exp - currentTime;
+      setSessionExpirationCountdown(expiresIn);
+
+
+      // Update the countdown every second
+      const interval = setInterval(() => {
+        setSessionExpirationCountdown((prevCountdown) => {
+          if (prevCountdown > 0) {
+            return prevCountdown - 1;
+          } else {
+            // Logout if countdown reaches 0
+            clearInterval(interval);
+            logout(); // Assuming logout is a function from your user context
+            return 0;
+          }
+        });
+      }, 1000);
+
+      // Clear the interval when the component is unmounted
+      return () => clearInterval(interval);
+    }
+  }, [user, logout]);
+
+  
+
 
   useEffect(() => {
     const fetchNewTickets = async () => {
       try {
-        const response = await fetch(`${ticketapi}/new-tickets?id=${user?.userId}`);
+        const response = await fetch(`${ticketapi}/new-tickets?id=${user?.userId}`,{
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error('Failed to fetch new tickets');
         }
         const data = await response.json();
         setNewTickets(data);
-        console.log(`new${data}`)
       } catch (error) {
         console.error('Error fetching new tickets:', error);
       }
     };
 
     fetchNewTickets(); // Fetch new tickets when the component mounts
-  }, []); 
+  }, [user?.userId, user?.token]); 
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
@@ -82,7 +117,8 @@ const AppHeader = () => {
   //   removeNotification(notification.id);
   // };
 
-  const toggleFullScreen = () => {
+  const toggleFullScreen = (e) => {
+    e.preventDefault();
     const docElm = document.documentElement
     const fullScreenEnabled =
       document.fullscreenEnabled ||

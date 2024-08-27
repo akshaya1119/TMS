@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Form, Collapse,Spinner } from 'react-bootstrap'; // Import Collapse 
 import PropTypes from 'prop-types'; 
  
-const CreateTicketForm = ({ newTicketType, setNewTicketType, handleCreateTicketType, openTicketType,loading }) => { 
+const CreateTicketForm = ({ newTicketType, setNewTicketType, handleCreateTicketType, openTicketType,loading, errorMessage }) => { 
     return ( 
         <Collapse in={openTicketType}> 
             <div id="create-TicketType-collapse"> 
@@ -26,6 +26,7 @@ const CreateTicketForm = ({ newTicketType, setNewTicketType, handleCreateTicketT
                                         onChange={(e) => setNewTicketType(e.target.value)} 
                                     /> 
                                 </div> 
+                                {errorMessage && <div className='text-danger text-end'>{errorMessage}</div>}
                                 <Button type="submit" className="btn mt-2" disabled= {loading}>{loading ? <><Spinner animation="border" size='sm' /> Adding TicketType...</> : "Submit"}</Button> 
 
                             </Form> 
@@ -42,7 +43,7 @@ const CreateTicketForm = ({ newTicketType, setNewTicketType, handleCreateTicketT
             handleCreateTicketType: PropTypes.func.isRequired, 
             openTicketType: PropTypes.bool.isRequired, 
             loading: PropTypes.bool.isRequired,
-
+            errorMessage : PropTypes.string.isRequired,
           }; 
            
           export default CreateTicketForm;

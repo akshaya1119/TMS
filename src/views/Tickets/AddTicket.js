@@ -35,7 +35,6 @@ const AddTicket = () => {
     attachments: null
   });
   const [message, setMessage] = useState(null);
-  // const [hubConnection, setHubConnection] = useState(null); // State for SignalR connection
 
   const ClickToNotify = () => {
 
@@ -51,29 +50,15 @@ const AddTicket = () => {
     });
   }
 
-  // useEffect(() => {
-  //   // Initialize SignalR connection
-  //   const connection = new signalR.HubConnectionBuilder()
-  //     .withUrl('https://localhost:7217/notificationHub/')
-  //     .build();
-
-  //   setHubConnection(connection);
-
-  //   connection
-  //     .start()
-  //     .then(() => console.log('SignalR Connected'))
-  //     .catch((error) => console.error('SignalR Connection Error: ', error));
-
-  //   return () => {
-  //     connection.stop();
-  //   };
-  // }, []);
-
 
   useEffect(() => {
     async function fetchAssignee() {
       try {
-        const response = await axios.get(userapi);
+        const response = await axios.get(userapi,{
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        });
         setAssignee(response.data);
       } catch (error) {
         console.error('Error fetching Assignee:', error);
@@ -86,7 +71,11 @@ const AddTicket = () => {
   useEffect(() => {
     async function fetchTickettype() {
       try {
-        const response = await axios.get(TicketTypeapi);
+        const response = await axios.get(TicketTypeapi,{
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        });
         setTicketType(response.data);
       } catch (error) {
         console.error('Error fetching Ticket Type:', error);
@@ -103,7 +92,11 @@ const AddTicket = () => {
   useEffect(() => {
     async function fetchProjecttype() {
       try {
-        const response = await axios.get(ProjectTypeapi);
+        const response = await axios.get(ProjectTypeapi,{
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        });
         setProjectType(response.data);
       } catch (error) {
         console.error('Error fetching Project Type:', error);
@@ -118,9 +111,7 @@ const AddTicket = () => {
     const { name, value } = e.target || e;
 
     if (name === 'assigneeId') {
-      console.log(Assignee);
       const selectedAssignee = Assignee.find(assignee => assignee.userId === value);
-      console.log(selectedAssignee);
       const isSelfAssign = value === user.userId
       const newDepartment = isSelfAssign ? selectedAssignee.departmentname : (selectedAssignee?.departmentname || '');
 
@@ -131,7 +122,6 @@ const AddTicket = () => {
         department: newDepartment,
         status: isSelfAssign ? 'Self-Assigned' : 'Open',
       }));
-      console.log(formData)
     } else if (name === 'departmentId') {
       setFormData((prevData) => ({
         ...prevData,
@@ -143,7 +133,6 @@ const AddTicket = () => {
         [name]: value,
       }));
     }
-    console.log(formData)
 
   };
 
@@ -166,12 +155,21 @@ const AddTicket = () => {
   
 
 
+  // const handleFileChange = (e) => {
+  //   setFormData(prevData => ({
+  //     ...prevData,
+  //     attachments: e.target.files
+  //   }));
+  // };
+
   const handleFileChange = (e) => {
+    const newFiles = Array.from(e.target.files);    
     setFormData(prevData => ({
       ...prevData,
-      attachments: e.target.files
+      attachments: [...prevData.attachments || [], ...newFiles]
     }));
   };
+  
 
   const handleTicketSubmit = async (event) => {
     event.preventDefault();
@@ -181,6 +179,12 @@ const AddTicket = () => {
   .filter(([key, value]) => key !== 'department' ) // Exclude departmentName and creatorName
   .map(([key, value]) => `${key === 'creatorName' ? 'creatorId' : key}=${key === 'creatorName' ? user.userId : value}`)
   .join('&');
+
+  const currentDate = new Date().toISOString().split('T')[0];
+    if (formData.dueDate < currentDate) {
+      setMessage('Due Date must be greater than today or equal to today.');
+      return;
+    }
 
 
   
@@ -202,17 +206,13 @@ const AddTicket = () => {
       const res = await axios.post(`${Ticketapi}?${formattedParams}`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          Authorization : `Bearer ${user?.token}`,
         },
       });
 
-      console.log(res);
       setMessage('Ticket added successfully!');
       setLoading(false);
 
-      // Send notification using SignalR after successful ticket addition
-      //  if (hubConnection) {
-      //   hubConnection.invoke('SendTicketAssignmentNotification', formData.assigneeEmail, `New ticket added: ${formData.title}`);
-      // }
       ClickToNotify();
 
 
@@ -236,7 +236,6 @@ const AddTicket = () => {
       setLoading(false);
     }
   };
-console.log(formData)
   return (
     <div className="container mt-5">
       <div className='d-flex justify-content-between'></div>
@@ -436,17 +435,7 @@ console.log(formData)
             Department
           </label>
           <div className="col-sm-3">
-            {/* <input
-            type="text"
-              className="form-control"
-              id="department"
-              name="department"
-              value={formData.department}
-              required
-              onChange={handleInputChange}
-               */}
-              
-            
+
             <Select
               value={{ value: formData.departmentId, label: formData.department }}
               components={{ DropdownIndicator:() => null, IndicatorSeparator:() => null }}

@@ -12,6 +12,7 @@ import ProjectType from './ProjectType';
 import Tickettype from './TicketType';
 import Tabs from 'react-bootstrap/Tabs';
 import CreateDesignationForm from './CreateRoleForm';
+import { useUser } from './../../../src/context/UserContext'
 
 
 
@@ -19,6 +20,7 @@ const Departmentapi = process.env.REACT_APP_API_DEPARTMENTS;
 const designationapi = process.env.REACT_APP_API_DESIGNATION;
 const TicketTypeapi = process.env.REACT_APP_API_TICKETTYPE;
 const ProjectTypepi = process.env.REACT_APP_API_PROJECTTYPE;
+
 const Department = () => {
     const [activeTab, setActiveTab] = useState('departments');
     const [departments, setDepartments] = useState([]);
@@ -36,14 +38,18 @@ const Department = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [editItem, setEditItem] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
-    const [loading,setLoading] = useState(false);
-
+    const [loading, setLoading] = useState(false);
+    const { user } = useUser();
 
     // Fetch departments from the API when the component mounts 
     useEffect(() => {
         const fetchDepartments = async () => {
             try {
-                const response = await axios.get(Departmentapi);
+                const response = await axios.get(Departmentapi, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                    }
+                });
                 setDepartments(response.data);
             } catch (error) {
                 console.error('Error fetching departments:', error);
@@ -57,7 +63,11 @@ const Department = () => {
     useEffect(() => {
         const fetchDesignation = async () => {
             try {
-                const response = await axios.get(designationapi);
+                const response = await axios.get(designationapi, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                    }
+                });
                 setDesignation(response.data);
             } catch (error) {
                 console.error('Error fetching designation:', error);
@@ -73,7 +83,6 @@ const Department = () => {
 
 
     const handleEdit = (item) => {
-        console.log('Edit item:', item);
         setEditItem(item);
     };
 
@@ -86,6 +95,10 @@ const Department = () => {
                 await axios.put(`${Departmentapi}/${id}`, {
                     departmentId: id,
                     departmentName: updatedValue,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                    }
                 });
 
                 setDepartments((prevDepartments) =>
@@ -94,7 +107,13 @@ const Department = () => {
                     )
                 );
             } catch (error) {
-                console.error('Error updating item:', error);
+                if (error.response && error.response.status === 409) {
+                    // Handle specific conflict error
+                    setErrorMessage(error.response.data.message); // Display the specific error message
+                } else {
+                    // Handle other errors
+                    setErrorMessage('An unexpected error occurred. Please try again.');
+                }
             }
         }
 
@@ -104,67 +123,108 @@ const Department = () => {
 
     const handleEditSubmitDesignation = async (e, id, updatedValue) => {
         e.preventDefault();
-        try {
-            await axios.put(`${designationapi}/${id}`, {
-                designationId: id,
-                designationName: updatedValue,
-            });
+        if (updatedValue !== '' && updatedValue !== null && updatedValue !== undefined) {
+            try {
+                await axios.put(`${designationapi}/${id}`, {
+                    designationId: id,
+                    designationName: updatedValue,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                    }
+                });
 
-            setDesignation((prevDesignation) =>
-                prevDesignation.map((designation) =>
-                    designation.designationId === id ? { ...designation, designationName: updatedValue } : designation
-                )
-            );
+                setDesignation((prevDesignation) =>
+                    prevDesignation.map((designation) =>
+                        designation.designationId === id ? { ...designation, designationName: updatedValue } : designation
+                    )
+                );
 
-            setEditItem(null);
-            setNewDesignation(''); // Reset newRoles state after submitting
-        } catch (error) {
-            console.error('Error updating role:', error);
+
+
+            } catch (error) {
+                if (error.response && error.response.status === 409) {
+                    // Handle specific conflict error
+                    setErrorMessage(error.response.data.message); // Display the specific error message
+                } else {
+                    // Handle other errors
+                    setErrorMessage('An unexpected error occurred. Please try again.');
+                }
+            }
         }
+        setEditItem(null);
+        setNewDesignation(''); // Reset newRoles state after submitting
     };
 
-   
+
 
     const handleEditSubmitTicketType = async (e, id, updatedValue) => {
         e.preventDefault();
-        try {
-            await axios.put(`${TicketTypeapi}/${id}`, {
-                ticketTypeId: id,
-                ticketType: updatedValue,
-            });
+        if (updatedValue !== '' && updatedValue !== null && updatedValue !== undefined) {
 
-            setTicketTypes((prevTicketTypes) =>
-                prevTicketTypes.map((ticket) =>
-                    ticket.ticketTypeId === id ? { ...ticket, ticketType: updatedValue } : ticket
-                )
-            );
+            try {
+                await axios.put(`${TicketTypeapi}/${id}`, {
+                    ticketTypeId: id,
+                    ticketType: updatedValue,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                    }
+                });
 
-            setEditItem(null);
-            setNewTicketType(''); // Reset newTicketType state after submitting
-        } catch (error) {
-            console.error('Error updating ticket type:', error);
+                setTicketTypes((prevTicketTypes) =>
+                    prevTicketTypes.map((ticket) =>
+                        ticket.ticketTypeId === id ? { ...ticket, ticketType: updatedValue } : ticket
+                    )
+                );
+
+                // Reset newTicketType state after submitting
+            } catch (error) {
+                if (error.response && error.response.status === 409) {
+                    // Handle specific conflict error
+                    setErrorMessage(error.response.data.message); // Display the specific error message
+                } else {
+                    // Handle other errors
+                    setErrorMessage('An unexpected error occurred. Please try again.');
+                }
+            }
         }
+        setEditItem(null);
+        setNewTicketType('');
     };
 
     const handleEditSubmitProject = async (e, id, updatedValue) => {
         e.preventDefault();
-        try {
-            await axios.put(`${ProjectTypepi}/${id}`, {
-                projectId: id,
-                projectTypes: updatedValue,
-            });
+        if (updatedValue !== '' && updatedValue !== null && updatedValue !== undefined) {
 
-            setProject((prevProjects) =>
-                prevProjects.map((project) =>
-                    project.projectId === id ? { ...project, projectTypes: updatedValue } : project
-                )
-            );
+            try {
+                await axios.put(`${ProjectTypepi}/${id}`, {
+                    projectId: id,
+                    projectTypes: updatedValue,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                    }
+                });
 
-            setEditItem(null);
-            setNewProject(''); // Reset newProject state after submitting
-        } catch (error) {
-            console.error('Error updating project:', error);
+                setProject((prevProjects) =>
+                    prevProjects.map((project) =>
+                        project.projectId === id ? { ...project, projectTypes: updatedValue } : project
+                    )
+                );
+
+            } catch (error) {
+                if (error.response && error.response.status === 409) {
+                    // Handle specific conflict error
+                    setErrorMessage(error.response.data.message); // Display the specific error message
+                } else {
+                    // Handle other errors
+                    setErrorMessage('An unexpected error occurred. Please try again.');
+                }
+            }
         }
+        setEditItem(null);
+        setNewProject('');
     };
 
 
@@ -174,7 +234,11 @@ const Department = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axios.get(ProjectTypepi);
+                const response = await axios.get(ProjectTypepi, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                    }
+                });
                 setProject(response.data);
             } catch (error) {
                 console.error('Error fetching projects:', error);
@@ -188,7 +252,11 @@ const Department = () => {
     useEffect(() => {
         const fetchTicketTypes = async () => {
             try {
-                const response = await axios.get(TicketTypeapi);
+                const response = await axios.get(TicketTypeapi, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                    }
+                });
                 setTicketTypes(response.data);
             } catch (error) {
                 console.error('Error fetching ticket types:', error);
@@ -202,7 +270,7 @@ const Department = () => {
         e.preventDefault();
         if (newDepartment.trim() !== '') {
             if (departments.some(department => department.departmentName === newDepartment)) {
-                setErrorMessage('Department name must be unique.');
+                setErrorMessage('*Department name must be unique.');
                 return;
             }
             setLoading(true); // Set loading to true when the form submission starts
@@ -210,22 +278,28 @@ const Department = () => {
                 // Send a POST request to create a new department 
                 const response = await axios.post(Departmentapi, {
                     departmentName: newDepartment,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                    }
                 });
 
                 // Update the state with the new department from the server response 
                 setDepartments([...departments, response.data]);
                 setNewDepartment('');
+                setOpenCreateDepartment(false);
             } catch (error) {
                 console.error('Error creating department:', error);
             }
             finally {
                 setLoading(false); // Reset loading state after the request completes
-              }
+            }
         }
     };
+
     const handleCreateDesignation = async (e) => {
         e.preventDefault();
-        
+
         if (newdesignation.trim() !== '') {
             if (designation.some(designation => designation.designationName === newdesignation)) {
                 setErrorMessage('Designation must be unique.');
@@ -237,20 +311,26 @@ const Department = () => {
                 // Send a POST request to create a new department 
                 const response = await axios.post(designationapi, {
                     designationName: newdesignation,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                    }
                 });
 
                 // Update the state with the new department from the server response 
                 setDesignation([...designation, response.data]);
                 setNewDesignation('');
+                setOpenCreateDesignation(false);
             } catch (error) {
                 console.error('Error creating designation:', error);
-                
+
             }
-            finally{
+            finally {
                 setLoading(false); // Reset loading state after the request completes
             }
         }
     };
+
     const handleCreateProjectType = async (e) => {
         e.preventDefault();
         if (newProject.trim() !== '') {
@@ -264,20 +344,26 @@ const Department = () => {
                 // Send a POST request to create a new department 
                 const response = await axios.post(ProjectTypepi, {
                     projectTypes: newProject,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                    }
                 });
 
                 // Update the state with the new department from the server response 
                 setProject([...project, response.data]);
                 setNewProject('');
+                setOpenProject(false);
             } catch (error) {
                 console.error('Error creating Project Name:', error);
             }
-            finally{
+            finally {
                 setLoading(false); // Reset loading state after the request completes
 
             }
         }
     };
+
     const handleCreateTicketType = async (e) => {
         e.preventDefault();
         if (newTicketType.trim() !== '') {
@@ -291,15 +377,20 @@ const Department = () => {
                 // Send a POST request to create a new department 
                 const response = await axios.post(TicketTypeapi, {
                     ticketType: newTicketType,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                    }
                 });
 
                 // Update the state with the new department from the server response 
                 setTicketTypes([...ticketType, response.data]);
                 setNewTicketType('');
+                setOpenTicketType(false);
             } catch (error) {
                 console.error('Error creating Ticket Type:', error);
             }
-            finally{
+            finally {
                 setLoading(false); // Reset loading state after the request completes
 
             }
@@ -368,7 +459,7 @@ const Department = () => {
                                                 setNewDepartment={setNewDepartment}
                                                 editItem={editItem}
                                                 searchQuery={searchQuery} // Pass search query as prop 
-
+                                                errorMessage={errorMessage}
                                             />
                                         </Col>}
                                         {hasPermission(3, 'canAddOnly') && <Col md={6} className="position-relative">
@@ -386,6 +477,7 @@ const Department = () => {
                                                 handleCreateDepartment={handleCreateDepartment}
                                                 openCreateDepartment={openCreateDepartment} // Pass openCreateDepartment as a prop 
                                                 loading={loading} // Pass loading state as a prop
+                                                errorMessage={errorMessage}
                                             />
                                         </Col>}
                                     </Row>
@@ -401,7 +493,7 @@ const Department = () => {
                                                 newDesignation={newdesignation}
                                                 setNewDesignation={setNewDesignation}
                                                 editItem={editItem}
-
+                                                errorMessage={errorMessage}
                                                 searchQuery={searchQuery}
                                             />
                                         </Col>}
@@ -420,6 +512,7 @@ const Department = () => {
                                                 handleCreateDesignation={handleCreateDesignation}
                                                 openCreateDesignation={openCreateDesignation}
                                                 loading={loading} // Pass loading state as a prop
+                                                errorMessage={errorMessage}
                                             />
                                         </Col>}
                                     </Row>
@@ -435,7 +528,7 @@ const Department = () => {
                                                 newTicketType={newTicketType}
                                                 setNewTicketType={setNewTicketType}
                                                 editItem={editItem}
-
+                                                errorMessage={errorMessage}
                                                 searchQuery={searchQuery}
                                             />
                                         </Col>}
@@ -454,6 +547,7 @@ const Department = () => {
                                                 handleCreateTicketType={handleCreateTicketType}
                                                 openTicketType={openTicketType}
                                                 loading={loading} // Pass loading state as a prop
+                                                errorMessage={errorMessage}
                                             />
                                         </Col>}
                                     </Row>
@@ -469,7 +563,7 @@ const Department = () => {
                                                 newProject={newProject}
                                                 setNewProject={setNewProject}
                                                 editItem={editItem}
-
+                                                errorMessage={errorMessage}
                                                 searchQuery={searchQuery}
                                             />
                                         </Col>}
@@ -488,6 +582,7 @@ const Department = () => {
                                                 handleCreateProjectType={handleCreateProjectType}
                                                 openProject={openProject}
                                                 loading={loading} // Pass loading state as a prop
+                                                errorMessage={errorMessage}
                                             />
                                         </Col>}
                                     </Row>

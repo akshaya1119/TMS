@@ -3,9 +3,11 @@ import Select from 'react-select';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import UpdatePermissionPage from './UpdatePermission';
+import { useUser } from 'src/context/UserContext';
 
 const Permission = () => {
   const [users, setUsers] = useState([]);
+  const {user} = useUser();
   const [selectedUser, setSelectedUser] = useState(null);
   const [userDepartment, setUserDepartment] = useState('');
   const [showPermissionPage, setShowPermissionPage] = useState(false);
@@ -15,7 +17,11 @@ const Permission = () => {
     // Fetch user data from your API and set the users state
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(`${ApiBaseUrl}/api/Users`); // Replace this with your API endpoint
+        const response = await axios.get(`${ApiBaseUrl}/api/Users`,{
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        }); // Replace this with your API endpoint
         setUsers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -46,7 +52,7 @@ const Permission = () => {
               <h5 className="mb-4">Select User to View Permissions</h5>
               <Select
                 options={users.map((user) => ({
-                  value: user.userId,
+                  value: user.userId.toString(),
                   label: `${user.firstName} ${user.lastName}`,
                   departmentname: user.departmentname, // Added departmentName property
                 }))}
@@ -70,7 +76,7 @@ const Permission = () => {
         </Col>
         <Col md={6}>
         {showPermissionPage && selectedUser && (
-            <UpdatePermissionPage userid={selectedUser?.value} />
+            <UpdatePermissionPage userId={selectedUser?.value} />
           )}
         </Col>
       </Row>

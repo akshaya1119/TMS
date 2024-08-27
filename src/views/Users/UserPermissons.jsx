@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import './AddUser';
 import { useSecurity } from './../../context/Security';
+import { useUser } from 'src/context/UserContext';
 
 
 
@@ -14,22 +15,28 @@ const moduleapi = process.env.REACT_APP_API_MODULE;
 
 const PermissionPage = () => {
   const { userId } = useParams();
+  
   const { decrypt } = useSecurity();
   const userID = decrypt(userId);
   const parsedUserID = parseInt(userID, 10);
   const [modulePermissions, setModulePermissions] = useState([]);
   const [modules, setModules] = useState([]);
-  const [user, setUser] = useState({});
+  const [users, setUser] = useState({});
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const {user} = useUser();
 
   useEffect(() => {
     // Fetch user details
     const fetchUserDetails = async () => {
       try {
-        const response = await axios.get(`${userapi}/${userID}`);
+        const response = await axios.get(`${userapi}/${userID}`,{
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        });
         setUser(response.data);
       } catch (error) {
         console.error('Error fetching user details:', error);
@@ -39,38 +46,20 @@ const PermissionPage = () => {
   }, [userID]);
 
 
-  // useEffect(() => {
-  //   // Fetch all modules
-  //   const fetchModules = async () => {
-  //     try {
-  //       const response = await axios.get(moduleapi);
-  //       setModules(response.data);
-  //       console.log(response.data);
-  //       setModulePermissions(response.data.map(module =>({
-  //         module_Id:module.id,
-  //         can_View:false,
-  //         can_Add :false,
-  //         can_Update:false,
-  //         can_Delete:false,
-  //       })))
-  //     } catch (error) {
-  //       console.error('Error fetching modules:', error);
-  //     }
-  //   };
-
-  //   fetchModules();
-  // }, []);
 
   useEffect(() => {
     // Fetch all modules
     const fetchModules = async () => {
       try {
-        const response = await axios.get(moduleapi);
+        const response = await axios.get(moduleapi,{
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        });
         setModules(response.data);
-        console.log(response.data);
         
         // If user is admin, set all permissions to true by default
-        const isAdminUser = user.roleId === 1;
+        const isAdminUser = users.roleId === 1;
         if (isAdminUser) {
           setModulePermissions(response.data.map(module =>({
             module_Id:module.id,
@@ -95,7 +84,7 @@ const PermissionPage = () => {
     };
   
     fetchModules();
-  }, [user]);
+  }, [users]);
   
 
   const handleInputChange = (module_Id, permissionType, checked) => { 
@@ -137,10 +126,13 @@ const PermissionPage = () => {
       canViewOnly: can_View,
     }));
     // Send the updated permissions to your API
-    axios.post(permissionapi, transformedPermissions)
+    axios.post(permissionapi, transformedPermissions,{
+      headers:{
+        Authorization : `Bearer ${user?.token}`,
+      }
+    })
       .then(response => {
         // Handle success, e.g., show a success message
-        console.log('Permissions added successfully:', response.data);
         setSuccessMessage('Permissions added successfully');
 
         // Redirect to the permissions page for the user
@@ -163,7 +155,7 @@ const PermissionPage = () => {
       <Row className="justify-content-center mt-5">
         <Col md={8}>
           <Card>
-            <Card.Header as="h5" className="text-center">Module Permissions of {user.firstName}</Card.Header>
+            <Card.Header as="h5" className="text-center">Module Permissions of {users.firstName}</Card.Header>
             <Card.Body>
               <Form>
                 <Table bordered>

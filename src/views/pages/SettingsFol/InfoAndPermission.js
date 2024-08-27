@@ -27,7 +27,6 @@ const InfoAndPermission = () => {
             fetch(`${userapi}/${userID}`)
                 .then((response) => response.json())
                 .then((userData) => {
-                    console.log('Fetched user details:', userData);
                     setUserDetails(userData);
                 })
                 .catch((error) => {
@@ -74,7 +73,11 @@ const InfoAndPermission = () => {
 
     const fetchAssignedTicketsCount = async () => {
         try {
-            const response = await fetch(`${ticketapi}/status-count?id=${userDetails.userId}`);
+            const response = await fetch(`${ticketapi}/status-count?id=${userDetails.userId}`,{
+                headers:{
+                  Authorization : `Bearer ${user?.token}`,
+                }
+              });
             if (!response.ok) {
                 throw new Error(`Error fetching assigned tickets count: ${response.status}`);
             }
@@ -82,7 +85,6 @@ const InfoAndPermission = () => {
             const data = await response.json();
             const totalAssignedCount = data?.openCount + data.pendingCount + data.selfassignedCount + data.completedCount;
             setAssignedTicketsCount(totalAssignedCount);
-            console.log('Assigned Tickets Count:', totalAssignedCount);
         } catch (error) {
             console.error('Error fetching assigned tickets count:', error);
         }
@@ -90,7 +92,11 @@ const InfoAndPermission = () => {
 
     const fetchResolvedTicketsCount = async () => {
         try {
-            const response = await fetch(`${ticketapi}/status-count?id=${userDetails.userId}`);
+            const response = await fetch(`${ticketapi}/status-count?id=${userDetails.userId}`,{
+                headers:{
+                  Authorization : `Bearer ${user?.token}`,
+                }
+              });
             if (!response.ok) {
                 throw new Error(`Error fetching resolved tickets count: ${response.status}`);
             }
@@ -98,7 +104,6 @@ const InfoAndPermission = () => {
             const data = await response.json();
             const totalResolvedCount = data.completedCount;
             setResolvedTicketsCount(totalResolvedCount);
-            console.log('Resolved Tickets Count:', totalResolvedCount);
         } catch (error) {
             console.error('Error fetching resolved tickets count:', error);
         }

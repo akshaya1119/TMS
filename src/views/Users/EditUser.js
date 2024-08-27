@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useSecurity } from './../../context/Security';
+import { useUser } from 'src/context/UserContext';
 
 const userapi = process.env.REACT_APP_API_USERS;
 const base = process.env.REACT_APP_BASE_API_URL;
@@ -14,6 +15,7 @@ const EditUser = () => {
     const { userId } = useParams();
     const { decrypt } = useSecurity();
     const decryptid = decrypt(userId);
+    const {user} = useUser();
     const [departments, setDepartments] = useState([]);
     const [Roles, setRoles] = useState([]);
     const [Designation, setDesignation] = useState([]);
@@ -23,7 +25,6 @@ const EditUser = () => {
         lastName: '',
         email: '',
         password: '',
-        //confirmPassword: '',
         mobileNo: '',
         departmentId: '',
         designationId: '',
@@ -31,12 +32,22 @@ const EditUser = () => {
         address: '',
         dateOfBirth: '',
     });
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+        const year = date.getFullYear();
+        return `${year}-${month}-${day}`;
+    };
 
     useEffect(() => {
-        axios.get(`${userapi}/${decryptid}`)
+        axios.get(`${userapi}/${decryptid}`,{
+            headers:{
+              Authorization : `Bearer ${user?.token}`,
+            }
+          })
             .then(res => {
                 setFormData(res.data);
-                console.log(res.data)
             })
             .catch(err => {
                 console.log(err);
@@ -46,7 +57,11 @@ const EditUser = () => {
     useEffect(() => {
         async function fetchDepartments() {
             try {
-                const response = await axios.get(departmentapi);
+                const response = await axios.get(departmentapi,{
+                    headers:{
+                      Authorization : `Bearer ${user?.token}`,
+                    }
+                  });
                 setDepartments(response.data);
             } catch (error) {
                 console.error('Error fetching departments:', error);
@@ -59,7 +74,11 @@ const EditUser = () => {
     useEffect(() => {
         async function fetchRoles() {
             try {
-                const response = await axios.get(`${base}/Roles`);
+                const response = await axios.get(`${base}/Roles`,{
+                    headers:{
+                      Authorization : `Bearer ${user?.token}`,
+                    }
+                  });
                 setRoles(response.data);
             } catch (error) {
                 console.error('Error fetching Roles:', error);
@@ -68,10 +87,15 @@ const EditUser = () => {
 
         fetchRoles();
     }, []);
+
     useEffect(() => {
         async function fetchDesignation() {
             try {
-                const response = await axios.get(designationapi);
+                const response = await axios.get(designationapi,{
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        });
                 setDesignation(response.data);
             } catch (error) {
                 console.error('Error fetching Designation:', error);
@@ -91,9 +115,12 @@ const EditUser = () => {
 
     function handleUserSubmit(event) {
         event.preventDefault();
-        axios.put(`${userapi}/${decryptid}`, formData)
+        axios.put(`${userapi}/${decryptid}`, formData,{
+            headers:{
+              Authorization : `Bearer ${user?.token}`,
+            }
+          })
             .then(res => {
-                console.log(res);
                 setMessage('User updated successfully!');
             })
             .catch(err => {
@@ -101,6 +128,7 @@ const EditUser = () => {
                 setMessage('Error updating user. Please try again.');
             });
     }
+ 
 
     return (
         <div className="container mt-5">
@@ -150,6 +178,7 @@ const EditUser = () => {
                         />
                     </div>
                     {/* Date of Birth */}
+                       
                     <label htmlFor="dateOfBirth" className="col-sm-1 col-form-label text-end">
                         DOB:
                     </label>
@@ -162,7 +191,7 @@ const EditUser = () => {
                             placeholder="Enter Date Of Birth"
                             required
                             onChange={handleInputChange}
-                            value={formData.dateOfBirth}
+                            value={formatDate(formData.dateOfBirth)}
                             disabled
                         />
                     </div>

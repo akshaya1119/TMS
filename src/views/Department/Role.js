@@ -3,7 +3,7 @@ import { Button, Form } from 'react-bootstrap'; // Import Collapse
 import PropTypes from 'prop-types'; // Import PropTypes 
 
 
-const Designation = ({ designations, handleEdit, handleEditSubmitDesignation, newDesignation, setNewDesignation, editItem, searchQuery }) => {
+const Designation = ({ designations, handleEdit, handleEditSubmitDesignation, newDesignation, setNewDesignation, editItem, searchQuery,errorMessage }) => {
 
     return (
         <div className="container py-5">
@@ -21,10 +21,10 @@ const Designation = ({ designations, handleEdit, handleEditSubmitDesignation, ne
                             <tbody>
                                 {designations
                                     .filter((designation) => designation.designationName?.toLowerCase().includes(searchQuery.toLowerCase()))
-                                    .map((designation) => (
+                                    .map((designation,index) => (
                                         <tr key={designation.designationId} className="table-row mt-1">
 
-                                            <td className="col col-3" data-label="SNo.">{designation.designationId}</td>
+                                            <td className="col col-3" data-label="SNo.">{index+1}</td>
                                             {/* <td className="col col-6" data-label="Designation">{designation.designationName}</td> 
                                             <td className="col col-3" data-label="Actions">  */}
                                             {editItem && editItem.designationId === designation.designationId ? (
@@ -60,11 +60,12 @@ const Designation = ({ designations, handleEdit, handleEditSubmitDesignation, ne
                                         </tr>
 
 
-                                    ))}
+))}
                             </tbody>
                         </table>
                     </div>
                 </div>
+{errorMessage && <div className='text-danger text-end'>{errorMessage}</div>}
             </div>
         </div>
 
@@ -77,7 +78,8 @@ Designation.propTypes = { // Define prop types
     handleEditSubmitDesignation: PropTypes.func.isRequired,
     newDesignation: PropTypes.string.isRequired,
     setNewDesignation: PropTypes.func.isRequired,
-    searchQuery: PropTypes.func.isRequired,
+    searchQuery: PropTypes.string.isRequired,
     editItem: PropTypes.object,
+    errorMessage : PropTypes.string.isRequired,
 };
 export default Designation;

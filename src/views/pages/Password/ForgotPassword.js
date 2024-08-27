@@ -14,6 +14,7 @@ const ForgotPassword = () => {
   const [emailError, setEmailError] = useState('');
   const [successMessage, setSuccessMesage] = useState('');
   const [loading, setLoading] = useState(false);
+
   const handleEmailChange = (value) => {
     setEmail(value);
     setEmailError(!value ? 'Email is required' : '');
@@ -32,7 +33,6 @@ const ForgotPassword = () => {
 
       if (response && response.data) {
         setSuccessMesage('Password has been sent to your email successfully')
-        console.log('Password reset email sent successfully');
         // You can redirect the user to a confirmation page if needed
       } else {
         console.error('Invalid API response', response);

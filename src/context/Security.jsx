@@ -6,9 +6,7 @@ const SecretKey = process.env.REACT_APP_SECRET_KEY || "ghjsfysdg123";
  
 // Encryption and decryption functions using AES 
 const encrypt = (data) => { 
-  console.log('Data to encrypt:', data); 
   const encryptedData = CryptoJS.AES.encrypt(data.toString(), SecretKey).toString(); 
-  console.log('Encrypted data:', encryptedData); 
   return encryptedData.replace(/\//g, ';'); 
 }; 
  

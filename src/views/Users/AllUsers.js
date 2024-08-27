@@ -3,10 +3,12 @@ import UserTable from './UserTable';
 import { useNavigate } from "react-router-dom";
 import { Container, Button } from 'react-bootstrap';
 import PermissionChecker from './../../context/PermissionChecker';
+import { useUser } from 'src/context/UserContext';
 
 const userapi= process.env.REACT_APP_API_USERS;
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
+  const {user} = useUser();
 
   let navigate = useNavigate();
   const OnClickAddUser = () => {
@@ -17,7 +19,11 @@ const AllUsers = () => {
 
   useEffect(() => {
     // Fetch user data from the API
-    fetch(userapi)
+    fetch(userapi,{
+      headers:{
+        Authorization : `Bearer ${user?.token}`,
+      }
+    })
       .then((res) => res.json())
       .then((data) => {
         // Map properties to match UserTable expectations
@@ -28,8 +34,7 @@ const AllUsers = () => {
           name: `${user.firstName} ${user.lastName}`,
           mobileNo: user.mobileNo,
           departmentname: user.departmentname,
-          
-          designationName: user.designationName,
+          designationname: user.designationname,
         }));
 
         setUsers(mappedUsers);

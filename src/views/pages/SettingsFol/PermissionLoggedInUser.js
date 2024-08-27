@@ -14,15 +14,17 @@ const UpdatePermissionPage = () => {
     const [loading, setLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    
 
-    // Assume you have a method to get the logged-in user's ID
     const {user} = useUser();
 
     useEffect(() => {
         const fetchPermissions = async () => {
             try {
-                const response = await axios.get(`${ApiBaseUrl}/api/Permission/ByUser/${user?.userId}`);
+                const response = await axios.get(`${ApiBaseUrl}/api/Permission/ByUser/${user?.userId}`,{
+                    headers:{
+                      Authorization : `Bearer ${user?.token}`,
+                    }
+                  });
                 setPermissions(response.data);
             } catch (error) {
                 console.error('Error fetching permissions:', error);
@@ -32,7 +34,11 @@ const UpdatePermissionPage = () => {
 
         const fetchModules = async () => {
             try {
-                const response = await axios.get(`${ApiBaseUrl}/api/Modules`);
+                const response = await axios.get(`${ApiBaseUrl}/api/Modules`,{
+                    headers:{
+                      Authorization : `Bearer ${user?.token}`,
+                    }
+                  });
                 setModules(response.data);
             } catch (error) {
                 console.error('Error fetching modules:', error);
@@ -42,7 +48,7 @@ const UpdatePermissionPage = () => {
 
         fetchPermissions();
         fetchModules();
-    }, [user.userId]);
+    }, [user]);
 
     const getModuleNameById = (moduleId) => {
         const module = modules.find(m => m.id === moduleId);

@@ -18,7 +18,6 @@ const AddTicket = lazy(() => import('./../views/Tickets/AddTicket'));
 const EditTicket = lazy(() => import('./../views/Tickets/EditTicket'))
 const ViewAllTickets = lazy(() => import('./../views/Tickets/ViewAllTickets'))
 const Archive = lazy(() => import('./../views/ArchivingTicket/Archive'))
-const Chats = lazy(() => import('./../views/Chats/Chat'))
 
 const MasterManagement = lazy(() => import('./../views/Department/Departments'))
 const Profile = lazy(() => import('./../views/UserProfile/Profile'))
@@ -40,7 +39,6 @@ const AppContent = () => {
           <Route path="/UserProfile" name="Profile" element={<Profile />} />
           <Route path="/UserProfile/Profile/:userId" name="Profile" element={<Profile />} />
           <Route path="/Archive" name="Archive" element={<Archive />} />
-          <Route path="/Chats" name="Chats" element={<Chats />} />
           <Route path="/SettingsNav/Settings" name="Settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/dashboard" />} />
           <Route path="/Users/AllUsers" name="All Users" element={<PermissionDecorator moduleId={1} permissionType="canViewOnly" element={<AllUsers />} />} />

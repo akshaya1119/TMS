@@ -28,8 +28,6 @@ function PersonalDetails() {
         firstName: '',
         lastName: '',
         email: '',
-        password: '',
-        //confirmPassword: '',
         mobileNo: '',
         departmentName: '',
         role: '',
@@ -38,12 +36,25 @@ function PersonalDetails() {
         dateOfBirth: '',
     });
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2,'0');
+        const month = String(date.getMonth() + 1).padStart(2,'0');
+        const year = date.getFullYear();
+        return `${year}-${month}-${day}`
+    }
+  
+    
+
 
     useEffect(() => {
-        axios.get(`${userapi}/${decryptid}`)
+        axios.get(`${userapi}/${decryptid}`,{
+            headers:{
+              Authorization : `Bearer ${user?.token}`,
+            }
+          })
             .then(res => {
                 setFormData(res.data);
-                console.log(res.data)
             })
             .catch(err => {
                 console.log(err);
@@ -54,7 +65,11 @@ function PersonalDetails() {
     useEffect(() => {
         async function fetchDepartments() {
             try {
-                const response = await axios.get(departmentapi);
+                const response = await axios.get(departmentapi,{
+                    headers:{
+                      Authorization : `Bearer ${user?.token}`,
+                    }
+                  });
                 setDepartments(response.data);
             } catch (error) {
                 console.error('Error fetching departments:', error);
@@ -67,7 +82,11 @@ function PersonalDetails() {
     useEffect(() => {
         async function fetchDesignations() {
             try {
-                const response = await axios.get(designationapi);
+                const response = await axios.get(designationapi,{
+                    headers:{
+                      Authorization : `Bearer ${user?.token}`,
+                    }
+                  });
                 setDesignations(response.data);
             } catch (error) {
                 console.error('Error fetching Designation:', error);
@@ -87,9 +106,12 @@ function PersonalDetails() {
 
     function handleUserSubmit(event) {
         event.preventDefault();
-        axios.put(`${userapi}/${decryptid}`, formData)
+        axios.put(`${userapi}/${decryptid}`, formData,{
+            headers:{
+              Authorization : `Bearer ${user?.token}`,
+            }
+          })
             .then(res => {
-                console.log(res);
                 setMessage('User updated successfully!');
             })
             .catch(err => {
@@ -164,7 +186,7 @@ function PersonalDetails() {
                         placeholder="Enter Date Of Birth"
                         required
                         onChange={handleInputChange}
-                        value={formData.dateOfBirth}
+                        value= {formatDate(formData.dateOfBirth)}
                         disabled />
                 </Form.Group>
             </Row>

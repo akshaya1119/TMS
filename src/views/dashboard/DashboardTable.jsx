@@ -77,12 +77,10 @@ const DashboardTable = ({ tickets, setTickets }) => {
   };
 
   const handleArchiveTicket = () => {
-    console.log('Archiving ticket:', selectedTicket);
     // Make API call to archive the ticket
     axios
       .put(`${Tickets}/${selectedTicket.ticketId}/archive`)
       .then((response) => {
-        console.log('Ticket archived successfully:', response.data);
         // Update tickets state in the parent component by removing the archived ticket
         setTickets(tickets.filter((ticket) => ticket.ticketId !== selectedTicket.ticketId));
       })

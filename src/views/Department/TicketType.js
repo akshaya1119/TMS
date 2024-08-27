@@ -2,7 +2,7 @@ import React from 'react';
 import { ListGroup, Button, Form, Collapse } from 'react-bootstrap'; // Import Collapse 
 import PropTypes from 'prop-types'; // Import PropTypes 
 
-const Tickettype = ({ ticketType, handleEdit, handleEditSubmitTicketType, newTicketType, setNewTicketType, editItem, searchQuery }) => {
+const Tickettype = ({ ticketType, handleEdit, handleEditSubmitTicketType, newTicketType, setNewTicketType, editItem, searchQuery,errorMessage }) => {
 
     return (
         <div className="container py-5">
@@ -22,10 +22,10 @@ const Tickettype = ({ ticketType, handleEdit, handleEditSubmitTicketType, newTic
                                     .filter((ticket) =>
                                         ticket.ticketType?.toLowerCase().includes(searchQuery.toLowerCase())
                                     )
-                                    .map((ticket) => (
+                                    .map((ticket,index) => (
                                         <tr key={ticket.ticketTypeId} className="table-row mt-1">
 
-                                            <td className="col col-3" data-label="SNo.">{ticket.ticketTypeId}</td>
+                                            <td className="col col-3" data-label="SNo.">{index+1}</td>
                                             {/* <td className="col col-6" data-label="TicketType">{ticket.ticketType}</td> 
                                             <td className="col col-3" data-label="Actions">  */}
                                             {editItem && editItem.ticketTypeId === ticket.ticketTypeId ? (
@@ -57,7 +57,7 @@ const Tickettype = ({ ticketType, handleEdit, handleEditSubmitTicketType, newTic
                                                     </td>
                                                 </>
 
-                                            )}
+)}
 
 
                                         </tr>
@@ -68,6 +68,7 @@ const Tickettype = ({ ticketType, handleEdit, handleEditSubmitTicketType, newTic
 
                 </div>
             </div>
+                                    {errorMessage && <div className='text-danger text-end'>{errorMessage}</div>}
         </div>
     );
 };
@@ -77,7 +78,8 @@ Tickettype.propTypes = { // Define prop types
     handleEditSubmitTicketType: PropTypes.func.isRequired,
     newTicketType: PropTypes.string.isRequired,
     setNewTicketType: PropTypes.func.isRequired,
-    searchQuery: PropTypes.func.isRequired,
+    searchQuery: PropTypes.string.isRequired,
     editItem: PropTypes.object,
+    errorMessage : PropTypes.string.isRequired,
 };
 export default Tickettype;

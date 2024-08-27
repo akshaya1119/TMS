@@ -19,38 +19,56 @@ const ArchiveTable = () => {
   const [error, setError] = useState(null); // State for error message 
   const [showAttachmentModal, setShowAttachmentModal] = useState(false);
   const [isImageAttachment, setIsImageAttachment] = useState(false);
-  const {user} = useUser();
+  const { user } = useUser();
+  const [tickets, setTickets] = useState([]);
 
 
   // const handleCloseAttachmentModal = () => {
   //   setShowAttachmentModal(false);
   // };
 
+  const fetchArchivedTickets = async () => {
+    try {
+      const response = await axios.get(`${Archived}?userId=${user.userId}`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      setArchivedTickets(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching archived tickets:', error);
+
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchArchivedTickets = async () => {
-      try {
-        const response = await axios.get(`${Archived}?userId=${user.userId}`);
-        setArchivedTickets(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching archived tickets:', error);
-        setLoading(false);
-
-      }
-    };
-
     fetchArchivedTickets();
-  }, [user.userId]);
+  }, [user?.userId]);
 
   const handleUnarchiveTicket = async () => {
-    try {
-      await axios.post(`${ticketapi}/${selectedTicket.ticketId}/unarchive?userId=${user.userId}`);
-      // Update the local state or refresh the list of archived tickets
+    if (!selectedTicket || !user?.token || !user?.userId) {
+      console.error('Missing required information for unarchiving ticket.');
+      return;
+    }
 
-      window.location.reload();
+    try {
+      await axios.post(
+        `${ticketapi}/${selectedTicket.ticketId}/unarchive?userId=${user.userId}`,
+        {}, // Payload, if needed
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      );
+      window.location.reload()
+      // Fetch updated list of archived tickets
+      fetchArchivedTickets();
     } catch (error) {
-      console.error('Error unarchiving ticket:', error);
-      // Handle the error, e.g., show an error message
+      console.error('Error unarchiving ticket:', error.response ? error.response.data : error.message);
+      setError('Failed to unarchive the ticket.');
     } finally {
       handleCloseConfirmationModal();
     }
@@ -108,14 +126,16 @@ const ArchiveTable = () => {
                 <td>{ticket.ticketType}</td>
                 <td>{new Date(ticket.dueDate).toLocaleString()}</td>
                 <td>{ticket.department}</td>
-                <td>{ticket.project2}</td>
+                <td>{ticket.project}</td>
                 <td>
-                  <Button onClick={() => handleViewTicket(ticket)}>
-                    <FontAwesomeIcon icon={faEye} className="text-success" />
-                  </Button>
-                  <Button onClick={() => handleShowConfirmationModal(ticket)}>
-                    <FontAwesomeIcon icon={faRepeat} className="text-danger" />
-                  </Button>
+                  <div className='d-flex align-items-center'>
+                    <div className='me-3'>
+                      <FontAwesomeIcon icon={faEye} className="text-success" onClick={() => handleViewTicket(ticket)} />
+                    </div>
+                    <div>
+                      <FontAwesomeIcon icon={faRepeat} className="text-danger" onClick={() => handleShowConfirmationModal(ticket)} />
+                    </div>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -157,8 +177,8 @@ const ArchiveTable = () => {
           <Modal.Body>
             <p>Title: {selectedTicket.title}</p>
             <p>Description: {selectedTicket.description}</p>
-            <p>Creator ID: {selectedTicket.email}</p>
-            <p>Assignee ID: {selectedTicket.assigneeEmail}</p>
+            <p>Creator ID: {selectedTicket.creatorName}</p>
+            <p>Assignee ID: {selectedTicket.assigneeName}</p>
             <p>Attachments:</p>
             {selectedTicket.attachment && (
               <div>

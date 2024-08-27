@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Form, Collapse,Spinner } from 'react-bootstrap'; // Import Collapse 
 import PropTypes from 'prop-types'; 
  
-const CreateDesignationForm = ({ newDesignation, setNewDesignation, handleCreateDesignation, openCreateDesignation,loading}) => { 
+const CreateDesignationForm = ({ newDesignation, setNewDesignation, handleCreateDesignation, openCreateDesignation,loading,errorMessage}) => { 
     return ( 
         <Collapse in={openCreateDesignation}> 
         <div id="create-designation-collapse"> 
@@ -25,7 +25,8 @@ const CreateDesignationForm = ({ newDesignation, setNewDesignation, handleCreate
                                     placeholder='Enter New Designation'
                                     onChange={(e) => setNewDesignation(e.target.value)} 
                                 /> 
-                            </div> 
+                            </div>
+                            {errorMessage && <div className='text-danger text-end'>{errorMessage}</div>} 
                             <Button type="submit" className="btn mt-2" disabled= {loading}>{loading ? <><Spinner animation="border" size='sm' /> Adding Designation...</> : "Submit"}</Button> 
 
                         </Form> 
@@ -42,7 +43,7 @@ CreateDesignationForm.propTypes = { // Define prop types
     handleCreateDesignation: PropTypes.func.isRequired, 
     openCreateDesignation: PropTypes.bool.isRequired, 
     loading: PropTypes.bool.isRequired,
-
+    errorMessage : PropTypes.string.isRequired,
   }; 
    
   export default CreateDesignationForm;

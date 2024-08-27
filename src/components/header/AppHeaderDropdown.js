@@ -8,47 +8,61 @@ import {
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react';
-import { cilSettings, cilArrowThickToRight, cilUser } from '@coreui/icons';
+import {cilArrowThickToRight, cilUser } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import defaultavatar from './../../assets/images/defaultavatar.jpg';
+import { useProfileImage } from 'src/context/ProfileImageProvider';
 
 const userapi = process.env.REACT_APP_API_USERS;
 const baseapi = process.env.REACT_APP_BASE_URL;
+
+
 const AppHeaderDropdown = () => {
   const { user, logout } = useUser();
   const [profilePicturePath, setProfilePicturePath] = useState(null);
   const navigate = useNavigate();
+  const { getProfileImageUrl } = useProfileImage(); 
+
+ 
+
 
   useEffect(() => {
-    // Fetch the profile picture path when the component mounts or when the user changes 
     const fetchProfilePicturePath = async () => {
-      if (user.userId) {
+      if (user?.userId) {
         try {
-          // Fetch profile picture path based on the user ID
-          const response = await fetch(`${userapi}/${user.userId}`);
-          const data = await response.json();
-          // Check if profilePicturePath exists in the data
-          if (data.profilePicturePath) {
-            const imgurl = `${baseapi}/${data.profilePicturePath}`;
-            setProfilePicturePath(imgurl);
-          } else {
-            // Handle the case where profilePicturePath is not available
-            // For example, set a default profile picture or do nothing
+          // Fetch user data
+          const response = await fetch(`${userapi}/${user.userId}`, {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Error fetching user data: ${response.status}`);
           }
-          console.log(data);
+
+          const data = await response.json();
+          const relativePath = data.profilePicturePath;
+          
+          // Construct the URL with timestamp for cache-busting
+          const imgUrl = relativePath ? `${baseapi}/${relativePath}?${new Date().getTime()}` : 'https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp';
+          
+          setProfilePicturePath(imgUrl);
+
+          // Update the profile image URL in the context
+          if (relativePath) {
+            getProfileImageUrl(user.userId, imgUrl);
+          }
         } catch (error) {
           console.error('Error fetching profile picture path:', error);
         }
       }
     };
 
-
-    fetchProfilePicturePath(); // Call the function 
-  }, [user.userId]);
-
-
+    fetchProfilePicturePath();
+  }, [user?.userId, user?.token, userapi, baseapi, getProfileImageUrl]);
   const handleLogout = () => {
     logout();
   };
@@ -56,6 +70,8 @@ const AppHeaderDropdown = () => {
   const handleProfileClick = () => {
     navigate(`/UserProfile`);
   };
+
+ 
 
 
   return (
@@ -68,10 +84,7 @@ const AppHeaderDropdown = () => {
           <CIcon icon={cilUser} className="me-2 c-pointer" />
           Profile
         </CDropdownItem>
-        {/* <CDropdownItem href="#">
-          <CIcon icon={cilSettings} className="me-2 c-pointer" />
-          Settings
-        </CDropdownItem> */}
+        
         <CDropdownDivider />
         <CDropdownItem onClick={handleLogout}>
           <CIcon icon={cilArrowThickToRight} className="me-2 c-pointer" />

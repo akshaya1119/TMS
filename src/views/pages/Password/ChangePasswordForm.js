@@ -86,9 +86,15 @@ const ChangePassword = () => {
 
     try {
       // Make API call to change password
-      const response = await axios.put(`${ChangePasswordApi}/${user.userId}`, {
+      const response = await axios.put(`${ChangePasswordApi}/${user.userId}`, 
+      
+      {
         currentPassword: passwords.currentPassword,
         newPassword: passwords.newPassword,
+      },{
+        headers:{
+          Authorization : `Bearer ${user?.token}`,
+        }
       });
 
       if (response.status === 200) {

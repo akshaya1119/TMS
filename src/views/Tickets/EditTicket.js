@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { Row, Col, Button, Form, Modal,Spinner } from 'react-bootstrap';
+import { Row, Col, Button, Form, Modal, Spinner, Tooltip } from 'react-bootstrap';
 import './EditTicket.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCommentDots, faPaperclip, faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -76,34 +76,47 @@ const EditTicket = () => {
   const [hovered, setHovered] = useState(false);
   const [currentUser, setCurrentUser] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showComments, setShowComments] = useState(false)
+  const [attachments, setAttachments] = useState([]);
 
 
+  const fetchTicketDetails = async () => {
+    try {
+      const [ticketResponse, commentsResponse, assigneesResponse, ticketTypesResponse] = await Promise.all([
+        axios.get(`${ticketapi}/${decryptid}`, {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          }
+        }),
+        axios.get(`${Commentapi}/${decryptid}`, {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          }
+        }).catch(() => ({ data: [] })),
+        axios.get(userapi, {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          }
+        }),
+        axios.get(TicketTypeapi, {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          }
+        }),
+      ]);
+      setFormData(ticketResponse.data);
+      setOldDetails(ticketResponse.data);
+      setComments(commentsResponse.data);
+      setAssignees(assigneesResponse.data);
+      setCurrentUser(assigneesResponse.data.filter(cu => cu.userId === user.userId)[0]);
+      setTicketTypes(ticketTypesResponse.data);
+    } catch (error) {
+      console.error('Error fetching Ticket, Comments, Assignees, and Ticket Types:', error);
+      setMessage('Error fetching ticket, comments, assignees, and ticket types. Please try again.');
+    }
+  };
 
   useEffect(() => {
-    async function fetchTicketDetails() {
-      try {
-        const [ticketResponse, commentsResponse, assigneesResponse, ticketTypesResponse] = await Promise.all([
-          axios.get(`${ticketapi}/${decryptid}`),
-          axios.get(`${Commentapi}/${decryptid}`).catch(() => ({ data: [] })),
-          axios.get(userapi),
-          axios.get(TicketTypeapi),
-        ]);
-        setFormData(ticketResponse.data);
-        console.log(ticketResponse.data);
-        setOldDetails(ticketResponse.data);
-        setComments(commentsResponse.data);
-        setAssignees(assigneesResponse.data);
-        setCurrentUser(assigneesResponse.data.filter(cu => cu.userId === user.userId)[0])
-        console.log(assigneesResponse.data.filter(cu => cu.userId === user.userId)[0])
-        setTicketTypes(ticketTypesResponse.data);
-      } catch (error) {
-        console.error('Error fetching Ticket, Comments, Assignees, and Ticket Types:', error);
-        console.log('Error details:', error.response); // Log the entire error object
-        console.log('Status code:', error.response.status);
-        setMessage('Error fetching ticket, comments, assignees, and ticket types. Please try again.');
-      }
-    }
-
     fetchTicketDetails();
     setCurrentDateTime(new Date().toLocaleString());
   }, [decryptid]);
@@ -124,6 +137,10 @@ const EditTicket = () => {
     setCollapsed(!collapsed);
   };
 
+  const handleToggleComments = () => {
+    setShowComments(prevState => !prevState);
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
     setFormData((prevData) => ({
@@ -136,45 +153,45 @@ const EditTicket = () => {
   const handleFileChange = (e) => {
     // Update the attachedFile state when a file is selected
     setAttachedFile(e.target.files[0]);
-  };
+  }; 
+  
+  // const handleFileChange = (e) => {
+  //   const newFiles = Array.from(e.target.files);    
+  //   setFormData(prevData => ({
+  //     ...prevData,
+  //     attachments: [...prevData.attachments || [], ...newFiles]
+  //   }));
+  // };
 
   const handleToggleUserComment = () => {
     if (comments.length > 0) {
-      const lastComment = comments[comments.length - 1]; 
-      console.log("Last Comment:", lastComment);
+      const lastComment = comments[comments.length - 1];
       setFormData({
-        ...formData, 
+        ...formData,
         userAssigneeName: lastComment.newAssigneeName,
-        userAssigneeId:lastComment.newAssigneeId,
-        userTicketType: lastComment.newTicketType, 
+        userAssigneeId: lastComment.newAssigneeId,
+        userTicketType: lastComment.newTicketType,
         userStatus: lastComment.newStatus,
         userPriority: lastComment.newPriority,
         userTicketTypeId: lastComment.newTicketTypeId,
       });
-      console.log("Updated Form Data:", {
-        ...formData,
-        userAssigneeName: lastComment.newAssigneeName,
-        userTicketType: lastComment.newTicketType, 
-        userStatus: lastComment.newStatus,
-        userPriority: lastComment.newPriority,
-      }); // Add this logging statement
-    } else {    
+// Add this logging statement
+    } else {
       // If there are no comments, set the initial state of the form fields with the details of the ticket
       setFormData({
         ...formData,
         userAssigneeName: formData.assigneeName,
-        userAssigneeId: formData.assigneeId, 
+        userAssigneeId: formData.assigneeId,
         userTicketType: formData.ticketType,
-        userStatus: formData.status, 
+        userStatus: formData.status,
         userPriority: formData.priority,
         userTicketTypeId: formData.ticketTypeId,
       });
-      console.log("Updated FormData:", formData); // Add this logging statement
     }
     setShowUserComment(!showUserComment);
   };
-  
-  
+
+
 
 
 
@@ -198,7 +215,7 @@ const EditTicket = () => {
 
     try {
       const params = {
-        
+        userid: user.userId,
         prev: formData.assigneeId,
         pre: formData.status,
         newp: formData.userPriority,
@@ -222,28 +239,24 @@ const EditTicket = () => {
       }
 
       // Log FormData and file details to the console
-      console.log('FormData:', bodyFormData);
-      console.log('File uploaded:', attachedFile);
 
       const response = await axios.post(url, bodyFormData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${user?.token}`,
         },
       });
 
-      console.log('Response:', response.data);
 
       setComments([...comments, response.data]);
       setNewComment('');
       setMessage('Comment submitted successfully!');
+      await fetchTicketDetails()
       handleToggleUserComment()
       setLoading(false);
-      // Update old details after successful comment submission
       setOldDetails(formData);
     } catch (error) {
       console.error('Error submitting comment:', error);
-      console.log('Error details:', error.response); // Log the entire error object
-      console.log('Status code:', error.response.status);
       setMessage('Error submitting comment. Please try again.');
     }
   };
@@ -251,21 +264,34 @@ const EditTicket = () => {
 
 
   const handleShowAttachmentModal = () => {
-    if (
-      formData.attachment.toLowerCase().endsWith('.png') ||
-      formData.attachment.toLowerCase().endsWith('.jpg') ||
-      formData.attachment.toLowerCase().endsWith('.jpeg') ||
-      formData.attachment.toLowerCase().endsWith('.gif') ||
-      formData.attachment.toLowerCase().endsWith('.bmp')
-    ) {
-      setIsImageAttachment(true);
+    const attachments = formData.attachment.split(';').filter(Boolean);
 
-      // Show the modal
-      setShowAttachmentModal(true);
+    // Check if any of the attachments are images
+    const imageAttachments = attachments.filter((attachment) =>
+      /\.(png|jpg|jpeg|gif|bmp)$/i.test(attachment)
+    );
+
+    // Check if any of the attachments are non-images
+
+
+    if (attachments.length === 1) {
+      // If there's only one attachment, handle it based on its type
+      const singleAttachmentUrl = `${baseapi}/${attachments[0].replace('wwwroot/', '')}`;
+      if (imageAttachments.length > 0) {
+        // Single attachment is an image, show in modal
+        setAttachments(attachments);
+        setShowAttachmentModal(true);
+      } else {
+        // Single attachment is a non-image, download it
+        window.open(singleAttachmentUrl, '_blank');
+      }
     } else {
-      window.open(`${baseapi}/${formData.attachment.replace('wwwroot/', '')}`, '_blank');
+      // Multiple attachments or one image and one or more non-images
+      setAttachments(attachments);
+      setShowAttachmentModal(true);
     }
   };
+
 
   const handleCloseAttachmentModal = () => {
     setShowAttachmentModal(false);
@@ -284,9 +310,12 @@ const EditTicket = () => {
       // Send a request to update the ticket status to "Completed"
       const response = await axios.put(`${markcompleted}/${decryptid}`, {
         status: 'Completed',
+      }, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        }
       });
 
-      console.log('Response:', response);
 
       // Check if the update was successful
       if (response.status === 200 || response.status === 204) {
@@ -304,13 +333,12 @@ const EditTicket = () => {
       setMessage('Error marking ticket as completed.');
     }
   };
-console.log(formData)
 
   return (
     <div className="container mt-3">
       <div className='d-flex justify-content-between '>
         <h4>Ticket Section</h4>
-        {user.email === formData.email && (
+        {user.userId === formData.creatorId && (
           <Button onClick={markAsCompleted} disabled={formData.status === 'Completed'} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             {hovered ? <FontAwesomeIcon icon={faCheck} /> : ' '}
             {formData.status === 'Completed' ? 'Completed' : 'Mark as Completed'}
@@ -354,7 +382,7 @@ console.log(formData)
           </div>
         </Col>
         <Col>
-        <label htmlFor="department" className="col-form-label text-end">
+          <label htmlFor="department" className="col-form-label text-end">
             Department:
           </label>
           <div className="">
@@ -409,14 +437,36 @@ console.log(formData)
         {/* Attachment Modal */}
         <Modal show={showAttachmentModal} onHide={handleCloseAttachmentModal}>
           <Modal.Header closeButton>
-            <Modal.Title>Attachment</Modal.Title>
+            <Modal.Title>Attachments</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {/* Check if formData.attachment is defined before processing */}
+            {attachments.length > 0 && (
+              <div>
+                {attachments.map((attachment, index) => {
+                  const isImageAttachment = /\.(png|jpg|jpeg|gif|bmp)$/i.test(attachment);
+                  const attachmentUrl = `${baseapi}/${attachment.replace('wwwroot/', '')}`;
 
-            {isImageAttachment && (<img src={`${baseapi}/${formData.attachment.replace('wwwroot/', '')}`} alt="Attachment" className="img-fluid" />)}
-
-
+                  return (
+                    <div key={index} className="mb-2">
+                      {isImageAttachment ? (
+                        <img
+                          src={attachmentUrl}
+                          alt={`Attachment ${index + 1}`}
+                          className="img-fluid"
+                          style={{ maxWidth: '100%', height: 'auto' }}
+                        />
+                      ) : (
+                        <p>
+                          <a href={attachmentUrl} target="_blank" rel="noopener noreferrer">
+                            View Attachment {index + 1}
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleCloseAttachmentModal}>
@@ -424,6 +474,13 @@ console.log(formData)
             </Button>
           </Modal.Footer>
         </Modal>
+
+
+
+
+
+
+
       </Row>
 
       <h5 className="mt-3 d-flex align-items-center justify-content-between">
@@ -456,10 +513,10 @@ console.log(formData)
           <Row>
             <Col md={7}>
               <div className="d-flex align-items-center justify-content-between mb-3">
-                <label htmlFor="description" className="col-form-label text-end">
+                <label htmlFor="description" className="col-form-label text-end fs-3">
                   Description:
                 </label>
-                <FontAwesomeIcon icon={faCommentDots} className="me-2 text-primary" onClick={handleToggleUserComment} />
+                <FontAwesomeIcon icon={faCommentDots} className="me-2 text-primary fs-3 " data-toggle="tooltip" data-html="true" title="Comment Below" onClick={handleToggleUserComment} />
               </div>
               <div className="mb-3">
                 <textarea
@@ -557,7 +614,7 @@ console.log(formData)
                   </label>
                   <div className="mb-3">
                     {/* Use ReactQuill only for the user's comment */}
-                    <ReactQuill 
+                    <ReactQuill
                       value={newComment}
                       onChange={handleUserCommentChange}
                       modules={{ toolbar: toolbarOptions }}
@@ -570,6 +627,7 @@ console.log(formData)
                     type="file"
                     id="attachedFile"
                     name="attachedFile"
+                    multiple
                     onChange={handleFileChange}
                   />
                 </Form.Group>
@@ -587,7 +645,6 @@ console.log(formData)
                           {assignees.map((assignee) => (
                             <option key={assignee.userId} value={assignee.userId}>
                               {assignee.fullName}
-                              {console.log(formData)}
                             </option>
                           ))}
                         </Form.Select>
@@ -600,7 +657,7 @@ console.log(formData)
                       <Col sm={8}>
                         <Form.Select value={formData.userTicketTypeId} onChange={handleInputChange} name="userTicketType">
                           <option value="">Select Ticket Type</option>
-                         
+
                           {ticketTypes.map((type) => (
                             <option key={type.ticketTypeId} value={type.ticketTypeId}>
                               {type.ticketType}
@@ -639,89 +696,112 @@ console.log(formData)
                   </Form>
                 </Row>
                 <Button className="mt-3" onClick={handleUserSubmit} disabled={loading}>
-                {loading ? <><Spinner animation="border" size='sm' /> Submitting Comment...</> : "Submit Your Comment"}
-                  
+                  {loading ? <><Spinner animation="border" size='sm' /> Submitting Comment...</> : "Submit Your Comment"}
+
                 </Button>
               </Col>
             </Row>
           )}
           {/* comments   */}
-          {comments.map((comment, index) => (
-            <>
-              <Row key={index} className='border p-2 align-items-center'>
-                <Col md={7}>
-                  <div className="d-flex align-items-center justify-content-between mb-3">
-                    <label htmlFor="description" className="col-form-label text-end">
-                      <p>Comment by {comment.newAssigneeName} at {new Date(comment.timestamp).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
-                    </label>
-                  </div>
-                  <div className="mb-3">
-                    <div dangerouslySetInnerHTML={{ __html: comment.comment }} />
-                    {/* Use dangerouslySetInnerHTML to render HTML tags */}
-                    {comment.attachment && (
-                      <div>
-                        <strong></strong>
-                        <a href={`${baseapi}/${comment.attachment.replace('wwwroot/', '')}`} target="_blank" rel="noopener noreferrer">
-                          <Button>{'View Attachment'}</Button>
-                        </a>
-                      </div>
-                    )}
-                  </div>
+
+          {comments && comments.length > 0 && (
+            <div>
+              {/* Button to expand or collapse comments */}
+              <div className='text-end'>
+                <Button
+                  variant="primary"
+                  onClick={handleToggleComments}
+                  className="mb-3 "
+
+                >
+                  {showComments ? <i className="fa-solid fa-angles-up"></i> : <i className="fa-solid fa-angles-down"></i>}
+                </Button></div>
+
+              {/* Conditionally render comments based on showComments state */}
+              {showComments && (
+
+                comments.map((comment, index) => (
+                  <>
+                    <Row key={index} className='border p-2 align-items-center'>
+                      <Col md={7}>
+                        <div className="d-flex align-items-center justify-content-between mb-3">
+                          <label htmlFor="description" className="col-form-label text-end">
+                            <p>Comment by {comment.userName} at {new Date(comment.timestamp).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+                          </label>
+                        </div>
+                        <div className="mb-3">
+                          <div dangerouslySetInnerHTML={{ __html: comment.comment }} />
+                          {/* Use dangerouslySetInnerHTML to render HTML tags */}
+                          {comment.attachment && (
+                            <div>
+                              <strong></strong>
+                              <a href={`${baseapi}/${comment.attachment.replace('wwwroot/', '')}`} target="_blank" rel="noopener noreferrer">
+                                <Button>{'View Attachment'}</Button>
+                              </a>
+                            </div>
+                          )}
+                        </div>
 
 
 
-                </Col>
-                <Col md={5}>
-                  <Form>
-                    <Form.Group as={Row} className="mb-3">
-                      <Form.Label column sm={4}>
-                        Assignee:
-                      </Form.Label>
-                      <Col sm={8}>
-                        <Form.Select name="assigneeName" disabled>
-                          <option value="">{comment.newAssigneeName}</option>
-
-                        </Form.Select>
                       </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3">
-                      <Form.Label column sm={4}>
-                        Ticket Type:
-                      </Form.Label>
-                      <Col sm={8}>
-                        <Form.Select name="ticketType" disabled>
-                          <option value="">{comment.newTicketType}</option>
+                      <Col md={5}>
+                        <Form>
+                          <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>
+                              Assignee:
+                            </Form.Label>
+                            <Col sm={8}>
+                              <Form.Select name="assigneeName" disabled>
+                                <option value="">{comment.newAssigneeName}</option>
 
-                        </Form.Select>
-                      </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3">
-                      <Form.Label column sm={4}>
-                        Status:
-                      </Form.Label>
-                      <Col sm={8}>
-                        <Form.Select name="status" disabled>
-                          <option value="">{comment.newStatus}</option>
+                              </Form.Select>
+                            </Col>
+                          </Form.Group>
+                          <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>
+                              Ticket Type:
+                            </Form.Label>
+                            <Col sm={8}>
+                              <Form.Select name="ticketType" disabled>
+                                <option value="">{comment.newTicketType}</option>
 
-                        </Form.Select>
-                      </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3">
-                      <Form.Label column sm={4}>
-                        Priority:
-                      </Form.Label>
-                      <Col sm={8}>
-                        <Form.Select name="priority" disabled>
-                          <option value="">{comment.newPriority}</option>
+                              </Form.Select>
+                            </Col>
+                          </Form.Group>
+                          <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>
+                              Status:
+                            </Form.Label>
+                            <Col sm={8}>
+                              <Form.Select name="status" disabled>
+                                <option value="">{comment.newStatus}</option>
 
-                        </Form.Select>
+                              </Form.Select>
+                            </Col>
+                          </Form.Group>
+                          <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>
+                              Priority:
+                            </Form.Label>
+                            <Col sm={8}>
+                              <Form.Select name="priority" disabled>
+                                <option value="">{comment.newPriority}</option>
+
+                              </Form.Select>
+                            </Col>
+                          </Form.Group>
+                        </Form>
                       </Col>
-                    </Form.Group>
-                  </Form>
-                </Col>
-              </Row>
-            </>
-          ))}
+                    </Row>
+
+
+                  </>
+
+                )))
+              }
+            </div>
+          )}
 
 
         </Col>
@@ -735,19 +815,22 @@ console.log(formData)
                   <li key={index} className="list-group-item">
                     <strong>{new Date(comment.timestamp).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</strong>
                     <br />
-                    {comment.newAssigneeEmail && (
+                    {comment.newAssigneeName && (
                       <span>
-                        Assigned to: {comment.newAssigneeEmail}
+                        Assigned to: {comment.newAssigneeName}
                       </span>
                     )}
                   </li>
                 ))}
+
               </ul>
+
             </div>
           </Col>
         )}
       </Row>
     </div>
+
   );
 };
 

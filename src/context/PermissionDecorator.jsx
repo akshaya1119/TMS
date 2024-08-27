@@ -16,12 +16,13 @@ const PermissionDecorator = ({ element, moduleId, permissionType }) => {
     const fetchPermissions = async () => {
       try {
         const userId = user.userId; // Assuming you are using a fixed userId for now
-        console.log("userId")
-        console.log(userId)
-        const response = await axios.get(`${permissionapi}/ByUser/${userId}`);
+        const response = await axios.get(`${permissionapi}/ByUser/${userId}`,{
+          headers:{
+            Authorization : `Bearer ${user?.token}`,
+          }
+        });;
         setPermissions(response.data);
         setLoading(false);
-        console.log(response.data);
       } catch (error) {
         console.error('Error fetching permissions:', error);
         setLoading(false);

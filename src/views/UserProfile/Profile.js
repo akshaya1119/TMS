@@ -7,11 +7,8 @@ import {
   MDBCardText,
   MDBCardBody,
   MDBCardImage,
-  // MDBBtn,
   MDBBreadcrumb,
   MDBBreadcrumbItem,
-  // MDBProgress,
-  // MDBProgressBar,
   MDBIcon,
   MDBListGroup,
   MDBListGroupItem,
@@ -21,6 +18,7 @@ import axios from 'axios';
 import $ from 'jquery'; // Import jQuery
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
+import { useProfileImage } from 'src/context/ProfileImageProvider';
 
 
 
@@ -42,14 +40,18 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(false);
   const [assignedTicketsCount, setAssignedTicketsCount] = useState(null);
   const [resolvedTicketsCount, setResolvedTicketsCount] = useState(null);
-  
+  const { updateProfileImageUrl } = useProfileImage();
+  const [profilePicturePath,setProfilePicturePath] = useState();
 
   useEffect(() => {
     if (userID) {
-      fetch(`${userapi}/${userID}`)
+      fetch(`${userapi}/${userID}`,{
+        headers:{
+          Authorization : `Bearer ${user?.token}`,
+        }
+      })
         .then((response) => response.json())
         .then((userData) => {
-          console.log('Fetched user details:', userData);
           setUserDetails(userData);
         })
         .catch((error) => {
@@ -57,6 +59,23 @@ const ProfilePage = () => {
         });
     }
   }, [userID]);
+
+  useEffect(() => {
+    if (profilePicturePath) {
+      fetch(`${userapi}/${userID}`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((userData) => {
+          setUserDetails(userData);
+        })
+        .catch((error) => {
+          console.error('Error fetching updated user details:', error);
+        });
+    }
+  }, [profilePicturePath]);
 
   useEffect(() => {
     if (userDetails?.email) {
@@ -96,7 +115,11 @@ const ProfilePage = () => {
 
   const fetchAssignedTicketsCount = async () => {
     try {
-      const response = await fetch(`${ticketapi}/status-count?id=${userDetails.userId}`);
+      const response = await fetch(`${ticketapi}/status-count?id=${userDetails.userId}`,{
+        headers:{
+          Authorization : `Bearer ${user?.token}`,
+        }
+      });
       if (!response.ok) {
         throw new Error(`Error fetching assigned tickets count: ${response.status}`);
       }
@@ -106,7 +129,6 @@ const ProfilePage = () => {
   
 
       setAssignedTicketsCount(totalAssignedCount);
-      console.log('Assigned Tickets Count:', totalAssignedCount);
     } catch (error) {
       console.error('Error fetching assigned tickets count:', error);
     }
@@ -114,7 +136,11 @@ const ProfilePage = () => {
 
   const fetchResolvedTicketsCount = async () => {
     try {
-      const response = await fetch(`${ticketapi}/status-count?id=${userDetails.userId}`);
+      const response = await fetch(`${ticketapi}/status-count?id=${userDetails.userId}`,{
+        headers:{
+          Authorization : `Bearer ${user?.token}`,
+        }
+      });
       if (!response.ok) {
         throw new Error(`Error fetching resolved tickets count: ${response.status}`);
       }
@@ -122,7 +148,6 @@ const ProfilePage = () => {
       const data = await response.json();
       const totalResolvedCount = data.completedCount; 
       setResolvedTicketsCount(totalResolvedCount);
-      console.log('Resolved Tickets Count:', totalResolvedCount);
     } catch (error) {
       console.error('Error fetching resolved tickets count:', error);
     }
@@ -140,32 +165,73 @@ const ProfilePage = () => {
     document.getElementById('previewImage').src = imageUrl;
   };
 
-  const handleUpload = () => {
+  // const handleUpload = () => {
+  //   if (selectedImage) {
+  //     setLoading(true);
+  //     const formData = new FormData();
+  //     formData.append('image', selectedImage);
+  //     axios
+  //       .post(`${userapi}/upload/${userID}`, formData,{
+  //         headers:{
+  //           Authorization : `Bearer ${user?.token}`,
+  //         }
+  //       })
+  //       .then((response) => {
+  //         const newImageUrl = `${baseapi}/${response.data.filePath}?${new Date().getTime()}`;
+  //         setUserDetails((prevUserDetails) => ({
+  //           ...prevUserDetails,
+  //           profilePicturePath: response.data.filePath,
+  //         }));
+  //         setProfilePicturePath(newImageUrl); // Update the profile picture path state
+  //               updateProfileImageUrl(user.userId, newImageUrl);
+  //         setShowBtn(false);
+  //       })
+  //       .catch((error) => {
+  //         console.error('Error updating profile picture:', error);
+  //       })
+  //       .finally(() => {
+  //         setLoading(false);
+  //         setShowBtn(false);
+  //         fetchAssignedTicketsCount();
+  //         fetchResolvedTicketsCount();
+  //       });
+  //   }
+  // };
+
+  const handleUpload = async () => {
     if (selectedImage) {
-      setLoading(true);
-      const formData = new FormData();
-      formData.append('image', selectedImage);
-      axios
-        .post(`${userapi}/upload/${userID}`, formData)
-        .then((response) => {
-          setUserDetails((prevUserDetails) => ({
-            ...prevUserDetails,
-            profilePicturePath: response.data.filePath,
-          }));
-          setShowBtn(false);
-        })
-        .catch((error) => {
-          console.error('Error updating profile picture:', error);
-        })
-        .finally(() => {
-          setLoading(false);
-          setShowBtn(false);
-          // Update assigned and resolved tickets count after successful upload
-          fetchAssignedTicketsCount();
-          fetchResolvedTicketsCount();
-        });
+        setLoading(true);
+        try {
+            const formData = new FormData();
+            formData.append('image', selectedImage);
+
+            const response = await axios.post(`${userapi}/upload/${userID}`, formData, {
+                headers: {
+                    Authorization: `Bearer ${user?.token}`,
+                },
+            });
+
+            const newImageUrl = `${baseapi}/${response.data.filePath}?${new Date().getTime()}`;
+
+            setUserDetails((prevUserDetails) => ({
+                ...prevUserDetails,
+                profilePicturePath: response.data.filePath,
+            }));
+            setProfilePicturePath(newImageUrl); // Update the profile picture path state
+            updateProfileImageUrl(user.userId, newImageUrl); // Update the profile image URL in the context
+            setShowBtn(false);
+            
+            // Additional actions after successful upload
+            await fetchAssignedTicketsCount();
+            await fetchResolvedTicketsCount();
+        } catch (error) {
+            console.error('Error updating profile picture:', error);
+        } finally {
+            setLoading(false);
+        }
     }
-  };
+};
+
 
   return (
     <section style={{ backgroundColor: '#f8f9fa', padding: '20px' }}>
@@ -239,7 +305,6 @@ const ProfilePage = () => {
             </MDBCard>
           </MDBCol>
           <MDBCol lg="8">
-            {console.log("userDetails:", userDetails)}
           
             {userDetails ? (
               <MDBCard className="mb-4">
