@@ -165,41 +165,21 @@ const ProfilePage = () => {
     document.getElementById('previewImage').src = imageUrl;
   };
 
-  // const handleUpload = () => {
-  //   if (selectedImage) {
-  //     setLoading(true);
-  //     const formData = new FormData();
-  //     formData.append('image', selectedImage);
-  //     axios
-  //       .post(`${userapi}/upload/${userID}`, formData,{
-  //         headers:{
-  //           Authorization : `Bearer ${user?.token}`,
-  //         }
-  //       })
-  //       .then((response) => {
-  //         const newImageUrl = `${baseapi}/${response.data.filePath}?${new Date().getTime()}`;
-  //         setUserDetails((prevUserDetails) => ({
-  //           ...prevUserDetails,
-  //           profilePicturePath: response.data.filePath,
-  //         }));
-  //         setProfilePicturePath(newImageUrl); // Update the profile picture path state
-  //               updateProfileImageUrl(user.userId, newImageUrl);
-  //         setShowBtn(false);
-  //       })
-  //       .catch((error) => {
-  //         console.error('Error updating profile picture:', error);
-  //       })
-  //       .finally(() => {
-  //         setLoading(false);
-  //         setShowBtn(false);
-  //         fetchAssignedTicketsCount();
-  //         fetchResolvedTicketsCount();
-  //       });
-  //   }
-  // };
+ 
 
   const handleUpload = async () => {
     if (selectedImage) {
+      const validateFileFormat = (file) => {
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const allowedExtensions = ['jpg', 'jpeg', 'png', 'svg'];
+        return allowedExtensions.includes(fileExtension);
+    };
+
+    // Validate the file format before proceeding
+    if (!validateFileFormat(selectedImage)) {
+        alert('Invalid file format. Only jpg, jpeg, png, and svg files are allowed.');
+        return; // Exit the function if the file format is invalid
+    }
         setLoading(true);
         try {
             const formData = new FormData();
@@ -272,6 +252,7 @@ const ProfilePage = () => {
     type="file"
     id="fileInput"
     className="d-none"
+    accept='jpg,jpeg,png,svg'
     onChange={handleImageChange}
   />
 </MDBCardBody>

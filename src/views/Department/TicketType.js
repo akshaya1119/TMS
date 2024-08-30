@@ -2,7 +2,7 @@ import React from 'react';
 import { ListGroup, Button, Form, Collapse } from 'react-bootstrap'; // Import Collapse 
 import PropTypes from 'prop-types'; // Import PropTypes 
 
-const Tickettype = ({ ticketType, handleEdit, handleEditSubmitTicketType, newTicketType, setNewTicketType, editItem, searchQuery,errorMessage }) => {
+const Tickettype = ({ ticketType, handleEdit, handleEditSubmitTicketType, newTicketType, setNewTicketType, editItem, searchQuery,errorTicketType }) => {
 
     return (
         <div className="container py-5">
@@ -68,7 +68,7 @@ const Tickettype = ({ ticketType, handleEdit, handleEditSubmitTicketType, newTic
 
                 </div>
             </div>
-                                    {errorMessage && <div className='text-danger text-end'>{errorMessage}</div>}
+                                    {errorTicketType && <div className='text-danger text-end'>{errorTicketType}</div>}
         </div>
     );
 };
@@ -80,6 +80,6 @@ Tickettype.propTypes = { // Define prop types
     setNewTicketType: PropTypes.func.isRequired,
     searchQuery: PropTypes.string.isRequired,
     editItem: PropTypes.object,
-    errorMessage : PropTypes.string.isRequired,
+    errorTicketType : PropTypes.string.isRequired,
 };
 export default Tickettype;

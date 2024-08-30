@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Form } from 'react-bootstrap'; // Import Collapse 
 import PropTypes from 'prop-types'; // Import PropTypes 
 
-const ProjectType = ({ project, newProject, setNewProject, handleEdit, handleEditSubmitProject, editItem, searchQuery,errorMessage }) => {
+const ProjectType = ({ project, newProject, setNewProject, handleEdit, handleEditSubmitProject, editItem, searchQuery, errorProject }) => {
 
     return (
 
@@ -23,10 +23,10 @@ const ProjectType = ({ project, newProject, setNewProject, handleEdit, handleEdi
                                     .filter((project) =>
                                         project.projectTypes?.toLowerCase().includes(searchQuery.toLowerCase())
                                     )
-                                    .map((project,index) => (
+                                    .map((project, index) => (
                                         <tr key={project.projectId} className="table-row mt-1">
 
-                                            <td className="col col-3" data-label="SNo.">{index+1}</td>
+                                            <td className="col col-3" data-label="SNo.">{index + 1}</td>
                                             {/* <td className="col col-6" data-label="Project">{project.projectTypes}</td> 
                                             <td className="col col-3" data-label="Actions">  */}
                                             {editItem && editItem.projectId === project.projectId ? (
@@ -62,12 +62,12 @@ const ProjectType = ({ project, newProject, setNewProject, handleEdit, handleEdi
                                         </tr>
 
 
-))}
+                                    ))}
                             </tbody>
                         </table>
                     </div>
                 </div>
-{errorMessage && <div className='text-danger text-end'>{errorMessage}</div>}
+                {errorProject && <div className='text-danger text-end'>{errorProject}</div>}
             </div>
         </div>
 
@@ -84,7 +84,7 @@ ProjectType.propTypes = { // Define prop types
     setNewProject: PropTypes.func.isRequired,
     searchQuery: PropTypes.string.isRequired,
     editItem: PropTypes.object,
-    errorMessage : PropTypes.string.isRequired,
+    errorProject: PropTypes.string.isRequired,
 };
 
 export default ProjectType;

@@ -15,7 +15,7 @@ const ExportSearch = ({ tickets, }) => {
   };
 
   const handleExport = (format) => {
-    const fileName = 'FilteredTable';
+    const fileName = 'Tickets';
 
     if (format === 'PDF') {
       exportToPDF(fileName);

@@ -35,6 +35,7 @@ const AddTicket = () => {
     attachments: null
   });
   const [message, setMessage] = useState(null);
+  const [todayDate, setTodayDate] = useState("");
 
   const ClickToNotify = () => {
 
@@ -50,6 +51,10 @@ const AddTicket = () => {
     });
   }
 
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    setTodayDate(today);
+  }, []);
 
   useEffect(() => {
     async function fetchAssignee() {
@@ -180,11 +185,11 @@ const AddTicket = () => {
   .map(([key, value]) => `${key === 'creatorName' ? 'creatorId' : key}=${key === 'creatorName' ? user.userId : value}`)
   .join('&');
 
-  const currentDate = new Date().toISOString().split('T')[0];
-    if (formData.dueDate < currentDate) {
-      setMessage('Due Date must be greater than today or equal to today.');
-      return;
-    }
+  // const currentDate = new Date().toISOString().split('T')[0];
+  //   if (formData.dueDate < currentDate) {
+  //     setMessage('Due Date must be greater than today or equal to today.');
+  //     return;
+  //   }
 
 
   
@@ -406,6 +411,7 @@ const AddTicket = () => {
               name="dueDate"
               placeholder="Select Due Date"
               required
+              min={todayDate}
               onChange={handleInputChange}
             />
           </div>

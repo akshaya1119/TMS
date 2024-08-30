@@ -78,6 +78,7 @@ const EditTicket = () => {
   const [loading, setLoading] = useState(false);
   const [showComments, setShowComments] = useState(false)
   const [attachments, setAttachments] = useState([]);
+  const[isAuthorized, setIsAuthorized] = useState(true);
 
 
   const fetchTicketDetails = async () => {
@@ -155,13 +156,7 @@ const EditTicket = () => {
     setAttachedFile(e.target.files[0]);
   }; 
   
-  // const handleFileChange = (e) => {
-  //   const newFiles = Array.from(e.target.files);    
-  //   setFormData(prevData => ({
-  //     ...prevData,
-  //     attachments: [...prevData.attachments || [], ...newFiles]
-  //   }));
-  // };
+ 
 
   const handleToggleUserComment = () => {
     if (comments.length > 0) {
@@ -199,20 +194,87 @@ const EditTicket = () => {
     setNewComment(value);
   };
 
-  const handleUserSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
+  // const handleUserSubmit = async (event) => {
+  //   event.preventDefault();
+  //   setLoading(true);
 
-    // Check if the current user is the creator, assignee, or reassignee
+  //   // Check if the current user is the creator, assignee, or reassignee
+  //   const isCreator = currentUser.fullName === formData.creatorName;
+  //   const isAssignee = currentUser.fullName === formData.assigneeName;
+  //   const isReassignee = currentUser.fullName === formData.userAssigneeName;
+
+  //   if (!isCreator && !isAssignee && !isReassignee) {
+  //     setMessage('You are not authorized to comment on this ticket.');
+  //     return;
+  //   }
+
+  //   try {
+  //     const params = {
+  //       userid: user.userId,
+  //       prev: formData.assigneeId,
+  //       pre: formData.status,
+  //       newp: formData.userPriority,
+  //       pret: formData.userTicketTypeId,
+  //       newt: formData.userTicketTypeId,
+  //       newa: formData.userAssigneeId,
+  //       news: formData.userStatus,
+  //       prep: formData.priority,
+  //       ticketid: formData.ticketId,
+  //       timestamp: new Date().toISOString(),
+  //       comment: newComment,
+  //     };
+
+  //     const url = `${TicketFlowapi}?${new URLSearchParams(params).toString()}`;
+
+  //     let bodyFormData = new FormData();
+
+  //     if (attachedFile) {
+  //       // Append the file to the FormData
+  //       bodyFormData.append('attachment', attachedFile, attachedFile.name);
+  //     }
+
+  //     // Log FormData and file details to the console
+
+  //     const response = await axios.post(url, bodyFormData, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //         Authorization: `Bearer ${user?.token}`,
+  //       },
+  //     });
+
+
+  //     setComments([...comments, response.data]);
+  //     setNewComment('');
+  //     setMessage('Comment submitted successfully!');
+  //     await fetchTicketDetails()
+  //     handleToggleUserComment()
+  //     setLoading(false);
+  //     setOldDetails(formData);
+  //   } catch (error) {
+  //     console.error('Error submitting comment:', error);
+  //     setMessage('Error submitting comment. Please try again.');
+  //   }
+  // };
+
+  useEffect(() => {
     const isCreator = currentUser.fullName === formData.creatorName;
     const isAssignee = currentUser.fullName === formData.assigneeName;
     const isReassignee = currentUser.fullName === formData.userAssigneeName;
+    
+    setIsAuthorized(isCreator || isAssignee || isReassignee);
+  }, [currentUser, formData]);
 
-    if (!isCreator && !isAssignee && !isReassignee) {
+
+  const handleUserSubmit = async (event) => {
+    event.preventDefault();
+  
+
+    // Check if the current user is the creator, assignee, or reassignee
+    if (!isAuthorized) {
       setMessage('You are not authorized to comment on this ticket.');
       return;
     }
-
+  setLoading(true);
     try {
       const params = {
         userid: user.userId,
@@ -260,7 +322,6 @@ const EditTicket = () => {
       setMessage('Error submitting comment. Please try again.');
     }
   };
-
 
 
   const handleShowAttachmentModal = () => {
@@ -516,7 +577,17 @@ const EditTicket = () => {
                 <label htmlFor="description" className="col-form-label text-end fs-3">
                   Description:
                 </label>
-                <FontAwesomeIcon icon={faCommentDots} className="me-2 text-primary fs-3 " data-toggle="tooltip" data-html="true" title="Comment Below" onClick={handleToggleUserComment} />
+                <Button className='btn-sm' variant="outline-primary" disabled = {!isAuthorized} onClick={handleToggleUserComment}>
+                <FontAwesomeIcon 
+                icon={faCommentDots} 
+                className=" fs-4 " d
+               // ata-toggle="tooltip" 
+                data-html="true" 
+                title="Comment Below" 
+                 
+                />
+                </Button>
+               
               </div>
               <div className="mb-3">
                 <textarea
@@ -527,7 +598,8 @@ const EditTicket = () => {
                   required
                   onChange={handleInputChange}
                   rows="6"
-                  disabled
+                 
+               disabled
                 />
 
                 {/* Show Attachment Button */}
@@ -695,7 +767,11 @@ const EditTicket = () => {
                     </Form.Group>
                   </Form>
                 </Row>
-                <Button className="mt-3" onClick={handleUserSubmit} disabled={loading}>
+                <Button 
+                className="mt-3" 
+                onClick={handleUserSubmit} 
+                disabled={loading}
+                 >
                   {loading ? <><Spinner animation="border" size='sm' /> Submitting Comment...</> : "Submit Your Comment"}
 
                 </Button>

@@ -54,12 +54,12 @@ const TicketsTable = ({ tickets, hasPermission, setTickets }) => {
 
   useEffect(() => {
     if (tableRef.current) {
-
-      $(tableRef.current).DataTable();
-
+      $(tableRef.current).DataTable({
+        "aLengthMenu": [100]
+    });
     }
   }, []);
-
+  
   const handleViewTicket = (ticket) => {
     setSelectedTicket(ticket);
     setModalShow(true);

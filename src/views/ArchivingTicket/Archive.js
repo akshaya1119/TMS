@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Alert } from 'react-bootstrap'; // Import Alert component for error message 
+import { Table, Button, Modal, Alert,Row,Col,Pagination,Form } from 'react-bootstrap'; // Import Alert component for error message 
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faRepeat } from '@fortawesome/free-solid-svg-icons';
@@ -20,12 +20,22 @@ const ArchiveTable = () => {
   const [showAttachmentModal, setShowAttachmentModal] = useState(false);
   const [isImageAttachment, setIsImageAttachment] = useState(false);
   const { user } = useUser();
-  const [tickets, setTickets] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10); // Number of items per page
+  const [searchTerm, setSearchTerm] = useState("");
 
+  const filteredTickets = archivedTickets.filter(ticket => {
+    const term = searchTerm.toLowerCase();
+    return (
+      (ticket.title && ticket.title.toLowerCase().includes(term)) ||
+      (ticket.status && ticket.status.toLowerCase().includes(term)) ||
+      (ticket.priority && ticket.priority.toLowerCase().includes(term)) ||
+      (ticket.ticketType && ticket.ticketType.toLowerCase().includes(term)) ||
+      (ticket.department && ticket.department.toLowerCase().includes(term)) ||
+      (ticket.project && ticket.project.toLowerCase().includes(term))
+    );
+  });
 
-  // const handleCloseAttachmentModal = () => {
-  //   setShowAttachmentModal(false);
-  // };
 
   const fetchArchivedTickets = async () => {
     try {
@@ -41,6 +51,26 @@ const ArchiveTable = () => {
 
       setLoading(false);
     }
+  };
+
+
+  const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
+
+  // Slice users for current page
+  const paginatedTickets = filteredTickets.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Handle page change
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page on search
   };
 
   useEffect(() => {
@@ -96,10 +126,25 @@ const ArchiveTable = () => {
       {/* Display error message if there's an error */}
       {error && <Alert variant="danger">{error}</Alert>}
 
-      {/* Loading indicator */}
+      <Row>
+
+
+        <Col md={10}>
+        </Col>
+        <Col md={2}> <Form.Control
+          type="text"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="mb-3 text-start"
+
+        />
+        </Col>
+      </Row>
       {loading ? (
         <div>Loading...</div>
       ) : (
+        <>
         <Table striped bordered hover>
           <thead>
             <tr>
@@ -116,7 +161,7 @@ const ArchiveTable = () => {
             </tr>
           </thead>
           <tbody>
-            {archivedTickets.map((ticket, index) => (
+            {paginatedTickets.map((ticket, index) => (
               <tr key={ticket.ticketId}>
                 <td>{index + 1}</td>
                 <td>{ticket.ticketId}</td>
@@ -141,6 +186,30 @@ const ArchiveTable = () => {
             ))}
           </tbody>
         </Table>
+        <Row className="justify-content-end">
+        <Col md="auto">
+          <Pagination>
+            <Pagination.Prev
+              onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            />
+            {[...Array(totalPages)].map((_, index) => (
+              <Pagination.Item
+                key={index}
+                active={index + 1 === currentPage}
+                onClick={() => handlePageChange(index + 1)}
+              >
+                {index + 1}
+              </Pagination.Item>
+            ))}
+            <Pagination.Next
+              onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            />
+          </Pagination>
+        </Col>
+      </Row>
+        </>
       )}
 
       {/* Confirmation Modal */}

@@ -3,7 +3,7 @@ import { Button, Form } from 'react-bootstrap'; // Import Collapse
 import PropTypes from 'prop-types'; // Import PropTypes 
 
 
-const Designation = ({ designations, handleEdit, handleEditSubmitDesignation, newDesignation, setNewDesignation, editItem, searchQuery,errorMessage }) => {
+const Designation = ({ designations, handleEdit, handleEditSubmitDesignation, newDesignation, setNewDesignation, editItem, searchQuery,errorRole }) => {
 
     return (
         <div className="container py-5">
@@ -65,7 +65,7 @@ const Designation = ({ designations, handleEdit, handleEditSubmitDesignation, ne
                         </table>
                     </div>
                 </div>
-{errorMessage && <div className='text-danger text-end'>{errorMessage}</div>}
+{errorRole && <div className='text-danger text-end'>{errorRole}</div>}
             </div>
         </div>
 
@@ -80,6 +80,6 @@ Designation.propTypes = { // Define prop types
     setNewDesignation: PropTypes.func.isRequired,
     searchQuery: PropTypes.string.isRequired,
     editItem: PropTypes.object,
-    errorMessage : PropTypes.string.isRequired,
+    errorRole : PropTypes.string.isRequired,
 };
 export default Designation;

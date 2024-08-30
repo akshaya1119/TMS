@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilEnvelopeOpen } from '@coreui/icons';
-import { Card, CardBody, CardGroup, Col, Container, Row, Form, InputGroup, Button, Spinner,Alert} from 'react-bootstrap';
+import {  Col, Container, Row, Form, InputGroup, Button, Spinner,Alert} from 'react-bootstrap';
 import { useUser } from './../../../context/UserContext';
 import axios from 'axios';
 import './Login.css';
@@ -101,6 +101,11 @@ const Login = () => {
     setPasswordError('')
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleLogin();
+  };
+
   // Toggle visibility of the password
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -115,7 +120,7 @@ const Login = () => {
       </div>
     ) : (
       <>
-        <Form className="mt-4">
+        <Form className="mt-4" onSubmit={handleSubmit}>
           <h1 className="text-center">Login</h1>
           <p className="text-center">Sign In to your account</p>
           <div className="mb-3">
@@ -155,10 +160,11 @@ const Login = () => {
               <Form.Control
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Password"
-                autoComplete="current-password"
+                autoComplete="off"
                 value={password}
                 onChange={(e) => handlePasswordChange(e.target.value)}
                 isInvalid={!!passwordError}
+                
                 required
               />
               {/* Toggle Password Visibility */}
@@ -171,7 +177,7 @@ const Login = () => {
           <Row className='align-items-center'>
             <Col xs={12} sm={6} className='text-center text-sm-center text-md-start mb-2 mb-sm-0'>
               {/* Login Button */}
-              <Button color="primary" className="px-4 w-100" onClick={handleLogin} disabled={loading}>
+              <Button type='submit' color="primary" className="px-4 w-100"  disabled={loading}>
                 {loading ? <Spinner animation="border" size="sm" className="me-2" /> : null}
                 Login
               </Button>

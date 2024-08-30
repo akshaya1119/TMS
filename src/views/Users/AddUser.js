@@ -38,6 +38,7 @@ const AddUser = () => {
     profilePicturePath: null,
   });
   const [message, setMessage] = useState(null);
+  const [todayDate, setTodayDate] = useState("");
 
   useEffect(() => {
     async function fetchDepartments() {
@@ -55,6 +56,13 @@ const AddUser = () => {
 
     fetchDepartments();
   }, []);
+
+
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    setTodayDate(today);
+  }, []);
+
   useEffect(() => {
     async function fetchRoles() {
       try {
@@ -98,6 +106,26 @@ const AddUser = () => {
       ...prevData,
       [name]: type === 'file' ? e.target.files : value,
     }));
+
+    // Additional real-time validation
+    if (name === 'firstName' || name === 'lastName') {
+      const regex = /^[A-Za-z\s]*$/;
+      if (!regex.test(value)) {
+        setMessage(`${name === 'firstName' ? 'First Name' : 'Last Name'} can only contain letters and spaces.`);
+      } else {
+        setMessage(null);
+      }
+    }
+
+    if (name === 'mobileNo') {
+      if (!/^\d*$/.test(value)) {
+        setMessage('Mobile number must only contain digits.');
+      } else if (value.length !== 10) {
+        setMessage('Mobile number must be exactly 10 digits long.');
+      } else {
+        setMessage(null);
+      }
+    }
   };
 
 
@@ -113,25 +141,46 @@ const AddUser = () => {
     return emailRegex.test(email);
   };
 
+  const validateForm = () => {
+    if (formData.firstName === '' || formData.lastName === '' || formData.email === '' || formData.mobileNo === '' || formData.address === '' || formData.dateOfBirth === '' || formData.departmentId === '' || formData.roleId === '') {
+      setMessage('Please fill out all required fields.');
+      return false;
+    }
+
+    if (!/^[A-Za-z\s]*$/.test(formData.firstName)) {
+      setMessage('First Name can only contain letters and spaces.');
+      return false;
+    }
+
+    if (!/^[A-Za-z\s]*$/.test(formData.lastName)) {
+      setMessage('Last Name can only contain letters and spaces.');
+      return false;
+    }
+
+    if (!validateEmail(formData.email)) {
+      setMessage('Email address is in an incorrect format.');
+      return false;
+    }
+
+    if (!/^\d{10}$/.test(formData.mobileNo)) {
+      setMessage('Mobile number must be exactly 10 digits long.');
+      return false;
+    }
+
+    if (!/^[A-Za-z\s]*$/.test(formData.address)) {
+      setMessage('Address can only contain letters and spaces.');
+      return false;
+    }
+
+    return true;
+  };
+
 
   function handleUserSubmit(event) {
     event.preventDefault();
     setLoading(true);
 
-    // Validate Date of Birth
-    const currentDate = new Date().toISOString().split('T')[0];
-    if (formData.dateOfBirth > currentDate) {
-      setMessage('Date of Birth must be smaller than the current date.');
-      return;
-    }
-
-    if (formData.mobileNo.length !== 10) {
-      setMessage('Mobile number must be exactly 10 digits long.');
-      setLoading(false);
-      return;
-    }
-    if (!validateEmail(formData.email)) {
-      setMessage('Email address is in an incorrect format.');
+    if (!validateForm()) {
       setLoading(false);
       return;
     }
@@ -188,7 +237,7 @@ const AddUser = () => {
         {/* Username */}
         <div className="row mb-3">
           <label htmlFor="firstName" className="col-sm-1 col-form-label text-start">
-            FirstName<span className="text-danger">*</span>
+            First Name<span className="text-danger">*</span>
           </label>
           <div className="col-sm-3">
             <input
@@ -196,7 +245,7 @@ const AddUser = () => {
               className="form-control"
               id="firstName"
               name="firstName"
-              placeholder="Enter FirstName"
+              placeholder="Enter First Name"
               required
               onChange={handleInputChange}
             />
@@ -204,7 +253,7 @@ const AddUser = () => {
 
           {/* Lastname */}
           <label htmlFor="lastName" className="col-sm-1 col-form-label text-end">
-            LastName<span className="text-danger">*</span>
+            Last Name<span className="text-danger">*</span>
           </label>
           <div className="col-sm-3">
             <input
@@ -212,7 +261,7 @@ const AddUser = () => {
               className="form-control"
               id="lastName"
               name="lastName"
-              placeholder="Enter lastName"
+              placeholder="Enter Last Name"
               required
               onChange={handleInputChange}
             />
@@ -267,6 +316,7 @@ const AddUser = () => {
               name="dateOfBirth"
               placeholder="Enter Date Of Birth"
               required
+              max={todayDate}
               onChange={handleInputChange}
             />
           </div>
@@ -367,21 +417,7 @@ const AddUser = () => {
             </select>
           </div>
 
-          {/* Confirm Password 
-          <label htmlFor="confirmPassword" className="col-sm-3 col-form-label text-end"> 
-            Confirm Password: 
-          </label> 
-          <div className="col-sm-3"> 
-            <input 
-              type="password" 
-              className="form-control" 
-              id="confirmPassword" 
-              name="confirmPassword" 
-              placeholder="Confirm password" 
-              required 
-              onChange={handleInputChange} 
-            /> */}
-          {/* </div> */}
+          
         </div>
 
         <div className="row mb-3">

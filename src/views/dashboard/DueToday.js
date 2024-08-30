@@ -27,7 +27,7 @@ const DueToday = () => {
         }
       });
       // Filter tickets where assigneeEmail matches the logged-in user's email
-      const filteredTickets = response.data.filter(ticket => ticket.assigneeId === user.userId);
+      const filteredTickets = response.data.filter(ticket => ticket.assigneeId === user.userId && ticket.status!= 'Completed');
       setTickets(filteredTickets);
       const todayTasks = getTicketsDueToday(filteredTickets);
       const upcomingTasks = getUpcomingDueDateTickets(filteredTickets);

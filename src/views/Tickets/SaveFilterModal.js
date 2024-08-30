@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
-const SaveFilterModal = ({ showSaveModal, handleCloseSaveModal, filterName, setFilterName, handleSaveNewFilter }) => (
+const SaveFilterModal = ({ showSaveModal, handleCloseSaveModal, filterName, setFilterName, handleSaveNewFilter, handleConfirmClose }) => (
     <Modal show={showSaveModal} onHide={handleCloseSaveModal}>
         <Modal.Header closeButton>
             <Modal.Title>Save Search Filter</Modal.Title>
@@ -22,7 +22,10 @@ const SaveFilterModal = ({ showSaveModal, handleCloseSaveModal, filterName, setF
             <Button variant="secondary" onClick={handleCloseSaveModal}>
                 Cancel
             </Button>
-            <Button variant="primary" onClick={handleSaveNewFilter}>
+            <Button variant="primary" onClick={() => {
+                handleSaveNewFilter();
+                handleConfirmClose(); // Ensure this is called when saving is successful
+            }}>
                 Save
             </Button>
         </Modal.Footer>
@@ -34,7 +37,8 @@ SaveFilterModal.propTypes = {
     handleCloseSaveModal: PropTypes.func.isRequired,
     filterName: PropTypes.string.isRequired,
     setFilterName: PropTypes.func.isRequired,
-    handleSaveNewFilter: PropTypes.func.isRequired
+    handleSaveNewFilter: PropTypes.func.isRequired,
+    handleConfirmClose : PropTypes.func.isRequired
 };
 
 export default SaveFilterModal;

@@ -20,6 +20,12 @@ const ForgotPassword = () => {
     setEmailError(!value ? 'Email is required' : '');
   };
 
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleResetPassword();
+  };
+
   const handleResetPassword = async () => {
     if (!email) {
       setEmailError('Email is required');
@@ -51,7 +57,7 @@ const ForgotPassword = () => {
 
 
       <Container>
-        <Form>
+        <Form onSubmit={handleSubmit}>
           <h1 className='text-center'>Forgot Password</h1>
           <p className="text-center">Enter your email address to reset your password</p>
           {successMessage && <Alert variant="success">{successMessage}</Alert>}
@@ -73,13 +79,13 @@ const ForgotPassword = () => {
           <Row >
             <Col xs={6} className='align-items-start'>
               {/* Reset Password Button */}
-              <Button color="primary" className="px-4" style={{ backgroundColor: theme }} onClick={handleResetPassword} disabled={loading}>
+              <Button type = 'submit' color="primary" className="px-4" style={{ backgroundColor: theme }} disabled={loading}>
                 {loading ? 'Loading...' : 'Reset Password'}
               </Button>
             </Col>
             <Col xs={6} className='text-end fs-5'>
               {/* Reset Password Button */}
-              <Link to="/Login" style={{ color: theme }} className="px-4" onClick={handleResetPassword}>
+              <Link to="/Login" style={{ color: theme }} className="px-4" >
                 Login
               </Link>
             </Col>

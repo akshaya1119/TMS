@@ -40,6 +40,10 @@ const Department = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const { user } = useUser();
+    const[errorDepartment,setErrorDepartment] = useState('');
+    const[errorProject,setErrorProject] = useState('');
+    const[errorTicketType,setErrorTicketType] = useState('');
+    const[errorRole,setErrorRole] = useState('');
 
     // Fetch departments from the API when the component mounts 
     useEffect(() => {
@@ -89,6 +93,7 @@ const Department = () => {
 
     const handleEditSubmit = async (e, id, updatedValue) => {
         e.preventDefault();
+        setErrorDepartment('');
         // Check if there is a change in the department name
         if (updatedValue !== '' && updatedValue !== null && updatedValue !== undefined) {
             try {
@@ -109,10 +114,10 @@ const Department = () => {
             } catch (error) {
                 if (error.response && error.response.status === 409) {
                     // Handle specific conflict error
-                    setErrorMessage(error.response.data.message); // Display the specific error message
+                    setErrorDepartment(error.response.data.message); // Display the specific error message
                 } else {
                     // Handle other errors
-                    setErrorMessage('An unexpected error occurred. Please try again.');
+                    setErrorDepartment('An unexpected error occurred. Please try again.');
                 }
             }
         }
@@ -123,6 +128,7 @@ const Department = () => {
 
     const handleEditSubmitDesignation = async (e, id, updatedValue) => {
         e.preventDefault();
+        setErrorRole('');
         if (updatedValue !== '' && updatedValue !== null && updatedValue !== undefined) {
             try {
                 await axios.put(`${designationapi}/${id}`, {
@@ -145,10 +151,10 @@ const Department = () => {
             } catch (error) {
                 if (error.response && error.response.status === 409) {
                     // Handle specific conflict error
-                    setErrorMessage(error.response.data.message); // Display the specific error message
+                    setErrorRole(error.response.data.message); // Display the specific error message
                 } else {
                     // Handle other errors
-                    setErrorMessage('An unexpected error occurred. Please try again.');
+                    setErrorRole('An unexpected error occurred. Please try again.');
                 }
             }
         }
@@ -160,6 +166,7 @@ const Department = () => {
 
     const handleEditSubmitTicketType = async (e, id, updatedValue) => {
         e.preventDefault();
+        setErrorTicketType('');
         if (updatedValue !== '' && updatedValue !== null && updatedValue !== undefined) {
 
             try {
@@ -182,10 +189,10 @@ const Department = () => {
             } catch (error) {
                 if (error.response && error.response.status === 409) {
                     // Handle specific conflict error
-                    setErrorMessage(error.response.data.message); // Display the specific error message
+                    setErrorTicketType(error.response.data.message); // Display the specific error message
                 } else {
                     // Handle other errors
-                    setErrorMessage('An unexpected error occurred. Please try again.');
+                    setErrorTicketType('An unexpected error occurred. Please try again.');
                 }
             }
         }
@@ -195,6 +202,7 @@ const Department = () => {
 
     const handleEditSubmitProject = async (e, id, updatedValue) => {
         e.preventDefault();
+        setErrorProject('');
         if (updatedValue !== '' && updatedValue !== null && updatedValue !== undefined) {
 
             try {
@@ -216,10 +224,10 @@ const Department = () => {
             } catch (error) {
                 if (error.response && error.response.status === 409) {
                     // Handle specific conflict error
-                    setErrorMessage(error.response.data.message); // Display the specific error message
+                    setErrorProject(error.response.data.message); // Display the specific error message
                 } else {
                     // Handle other errors
-                    setErrorMessage('An unexpected error occurred. Please try again.');
+                    setErrorProject('An unexpected error occurred. Please try again.');
                 }
             }
         }
@@ -268,9 +276,11 @@ const Department = () => {
 
     const handleCreateDepartment = async (e) => {
         e.preventDefault();
+        setErrorDepartment('');
+
         if (newDepartment.trim() !== '') {
             if (departments.some(department => department.departmentName === newDepartment)) {
-                setErrorMessage('*Department name must be unique.');
+                setErrorDepartment('*Department name must be unique.');
                 return;
             }
             setLoading(true); // Set loading to true when the form submission starts
@@ -289,7 +299,7 @@ const Department = () => {
                 setNewDepartment('');
                 setOpenCreateDepartment(false);
             } catch (error) {
-                console.error('Error creating department:', error);
+                setErrorDepartment('An unexpected error occurred. Please try again.');
             }
             finally {
                 setLoading(false); // Reset loading state after the request completes
@@ -299,10 +309,10 @@ const Department = () => {
 
     const handleCreateDesignation = async (e) => {
         e.preventDefault();
-
+        setErrorRole('');
         if (newdesignation.trim() !== '') {
             if (designation.some(designation => designation.designationName === newdesignation)) {
-                setErrorMessage('Designation must be unique.');
+                setErrorRole('Designation must be unique.');
                 return;
             }
             setLoading(true); // Set loading to true when the form submission starts
@@ -322,7 +332,7 @@ const Department = () => {
                 setNewDesignation('');
                 setOpenCreateDesignation(false);
             } catch (error) {
-                console.error('Error creating designation:', error);
+                setErrorRole('An unexpected error occurred. Please try again.');
 
             }
             finally {
@@ -333,9 +343,10 @@ const Department = () => {
 
     const handleCreateProjectType = async (e) => {
         e.preventDefault();
+        setErrorProject('');
         if (newProject.trim() !== '') {
             if (project.some(projects => projects.projectTypes === newProject)) {
-                setErrorMessage('Project name must be unique.');
+                setErrorProject('Project name must be unique.');
                 return;
             }
             setLoading(true); // Set loading to true when the form submission starts
@@ -355,7 +366,7 @@ const Department = () => {
                 setNewProject('');
                 setOpenProject(false);
             } catch (error) {
-                console.error('Error creating Project Name:', error);
+                setErrorProject('An unexpected error occurred. Please try again.');
             }
             finally {
                 setLoading(false); // Reset loading state after the request completes
@@ -366,9 +377,10 @@ const Department = () => {
 
     const handleCreateTicketType = async (e) => {
         e.preventDefault();
+        setErrorTicketType('');
         if (newTicketType.trim() !== '') {
             if (ticketType.some(ticketTypes => ticketTypes.ticketType === newTicketType)) {
-                setErrorMessage('Ticket Type must be unique.');
+                setErrorTicketType('Ticket Type must be unique.');
                 return;
             }
             setLoading(true); // Set loading to true when the form submission starts
@@ -388,7 +400,7 @@ const Department = () => {
                 setNewTicketType('');
                 setOpenTicketType(false);
             } catch (error) {
-                console.error('Error creating Ticket Type:', error);
+                setErrorTicketType('An unexpected error occurred. Please try again.');
             }
             finally {
                 setLoading(false); // Reset loading state after the request completes
@@ -459,7 +471,7 @@ const Department = () => {
                                                 setNewDepartment={setNewDepartment}
                                                 editItem={editItem}
                                                 searchQuery={searchQuery} // Pass search query as prop 
-                                                errorMessage={errorMessage}
+                                                errorDepartment={errorDepartment}
                                             />
                                         </Col>}
                                         {hasPermission(3, 'canAddOnly') && <Col md={6} className="position-relative">
@@ -493,7 +505,7 @@ const Department = () => {
                                                 newDesignation={newdesignation}
                                                 setNewDesignation={setNewDesignation}
                                                 editItem={editItem}
-                                                errorMessage={errorMessage}
+                                                errorRole={errorRole}
                                                 searchQuery={searchQuery}
                                             />
                                         </Col>}
@@ -528,7 +540,7 @@ const Department = () => {
                                                 newTicketType={newTicketType}
                                                 setNewTicketType={setNewTicketType}
                                                 editItem={editItem}
-                                                errorMessage={errorMessage}
+                                                errorTicketType={errorTicketType}
                                                 searchQuery={searchQuery}
                                             />
                                         </Col>}
@@ -563,7 +575,7 @@ const Department = () => {
                                                 newProject={newProject}
                                                 setNewProject={setNewProject}
                                                 editItem={editItem}
-                                                errorMessage={errorMessage}
+                                                errorProject={errorProject}
                                                 searchQuery={searchQuery}
                                             />
                                         </Col>}

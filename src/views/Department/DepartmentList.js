@@ -4,7 +4,7 @@ import { Button, Form } from 'react-bootstrap'; // Import Collapse
 import PropTypes from 'prop-types'; // Import PropTypes 
 
 
-const DepartmentList = ({ departments, handleEdit, handleEditSubmit, newDepartment, setNewDepartment, editItem, searchQuery,errorMessage }) => {
+const DepartmentList = ({ departments, handleEdit, handleEditSubmit, newDepartment, setNewDepartment, editItem, searchQuery,errorDepartment }) => {
     // const [searchQuery, setSearchQuery] = useState(''); 
 
     return (
@@ -64,7 +64,7 @@ const DepartmentList = ({ departments, handleEdit, handleEditSubmit, newDepartme
                         </table>
                     </div>
                 </div>
-                        {errorMessage && <div className='text-danger text-end'>{errorMessage}</div>}
+                        {errorDepartment && <div className='text-danger text-end'>{errorDepartment}</div>}
             </div>
         </div>
     );
@@ -80,7 +80,7 @@ DepartmentList.propTypes = { // Define prop types
     setNewDepartment: PropTypes.func.isRequired,
     searchQuery: PropTypes.string.isRequired,
     editItem: PropTypes.object,
-    errorMessage : PropTypes.string.isRequired,
+    errorDepartment : PropTypes.string.isRequired,
 };
 
 export default DepartmentList;

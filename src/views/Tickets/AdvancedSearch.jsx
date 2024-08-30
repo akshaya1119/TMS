@@ -14,9 +14,10 @@ import { FaTrash } from 'react-icons/fa';
 const userapi = process.env.REACT_APP_API_USERS;
 const TicketTypeapi = process.env.REACT_APP_API_TICKETTYPE;
 const ProjectTypeapi = process.env.REACT_APP_API_PROJECTTYPE;
-const savedFiltersApi = 'https://localhost:7217/api/SearchSave';
+const savedFiltersApi = process.env.REACT_APP_API_SavedSearch;
+const FilterApi = process.env.REACT_APP_API_Filter;
 
-const AdvancedSearchContainer = ({ onApplyFilters,fetchTickets }) => {
+const AdvancedSearchContainer = ({ onApplyFilters, fetchTickets }) => {
     const [isAdvancedSearchOpen, setAdvancedSearchOpen] = useState(false);
     const [selectedFilters, setSelectedFilters] = useState([]);
     const [filterOptions, setFilterOptions] = useState({});
@@ -65,12 +66,12 @@ const AdvancedSearchContainer = ({ onApplyFilters,fetchTickets }) => {
                 const userResponse = await axios.get(userapi, {
                     headers: { Authorization: `Bearer ${user?.token}` }
                 });
-                setUsers(userResponse.data  || []);
+                setUsers(userResponse.data || []);
 
                 const savedFiltersResponse = await axios.get(savedFiltersApi, {
                     headers: { Authorization: `Bearer ${user?.token}` }
                 });
-                setSavedFilters(savedFiltersResponse.data  || []);
+                setSavedFilters(savedFiltersResponse.data || []);
 
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -104,12 +105,17 @@ const AdvancedSearchContainer = ({ onApplyFilters,fetchTickets }) => {
         }
     }, [selectedFilters]);
 
+    useEffect(() => {
+        console.log('Updated selectedFilters:', selectedFilters);
+    }, [selectedFilters]);
+    
+
     const handleShowCloseModal = () => {
         if (hasUnsavedChanges) {
             setShowCloseModal(true);
         } else {
             setSelectedFilters([])
-            setHasUnsavedChanges([])
+            setHasUnsavedChanges(false)
             setFilterParams({})
             setSelectedSavedFilter('')
             fetchTickets();
@@ -119,7 +125,7 @@ const AdvancedSearchContainer = ({ onApplyFilters,fetchTickets }) => {
 
     const onClickApply = async () => {
         try {
-            const response = await axios.get('https://localhost:7217/api/Tickets/filter', {
+            const response = await axios.get(FilterApi, {
                 params: filterParams,
                 headers: {
                     Authorization: `Bearer ${user.token}`,
@@ -144,24 +150,24 @@ const AdvancedSearchContainer = ({ onApplyFilters,fetchTickets }) => {
             selectedOption = option;
         } else if (filter === 'DueDate') {
             console.log('Original Date Option:', option); // Debug log
-        
+
             // Create a date object from the option
             const date = new Date(option);
             console.log('Date Object:', date); // Debug log
-        
+
             // Format the date to match the API format: 'YYYY-MM-DD HH:mm:ss'
             selectedOption = date.toISOString().replace('T', ' ').split('.')[0]; // Adjust format
             console.log('Formatted Date:', selectedOption); // Debug log
         } else {
             selectedOption = filterOptions[filter]?.find(opt => opt.label === option);
         }
-        
+
         console.log('Selected Option:', selectedOption); // Debug log
-        
+
         setSelectedFilters(prev =>
             prev.map(f => (f.filter === filter ? { ...f, selectedOption: filter === 'Title' ? selectedOption : selectedOption?.label } : f))
         );
-        
+
         // Ensure the correct key is used
         if (filter === 'DueDate') {
             // Directly set 'DueDate' in filterParams
@@ -172,17 +178,18 @@ const AdvancedSearchContainer = ({ onApplyFilters,fetchTickets }) => {
         } else {
             const filtersThatSendValue = ['Ticket Type', 'Project', 'Assigned by', 'Assigned To'];
             const key = filter.replace(' ', '') + (filtersThatSendValue.includes(filter) ? 'Id' : '');
-            
+
             setFilterParams(prev => ({
                 ...prev,
                 [key]: filter === 'Title' ? selectedOption : selectedOption?.value
             }));
         }
-        
+
         setHasUnsavedChanges(true);
     };
-    
-    
+
+
+ 
     
 
     const handleRemoveFilter = (filter) => {
@@ -200,59 +207,61 @@ const AdvancedSearchContainer = ({ onApplyFilters,fetchTickets }) => {
     const handleShowSaveModal = () => setShowSaveModal(true);
     const handleCloseSaveModal = () => setShowSaveModal(false);
 
-    
+
     const handleSaveFilter = async () => {
         if (!selectedSavedFilter) {
-          // No filter is selected, create a new filter
-          setShowSaveModal(true);
+            // No filter is selected, create a new filter
+            setShowSaveModal(true);
         } else {
-          // A filter is selected, update it directly
-          const newSavedFilter = {
-            id: savedFilters.find(f => f.name === selectedSavedFilter).id,
-            name: selectedSavedFilter,
+            // A filter is selected, update it directly
+            const newSavedFilter = {
+                id: savedFilters.find(f => f.name === selectedSavedFilter).id,
+                name: selectedSavedFilter,
+                config: JSON.stringify(selectedFilters.reduce((acc, { filter, selectedOption }) => {
+                    if (selectedOption) acc[filter] = selectedOption;
+                    return acc;
+                }, {})),
+            };
+
+            try {
+                await axios.put(`${savedFiltersApi}/${savedFilters.find(f => f.name === selectedSavedFilter).id}`, newSavedFilter, {
+                    headers: { Authorization: `Bearer ${user?.token}`, 'Content-Type': 'application/json' },
+                });
+                setSavedFilters(prev => prev.map(f => f.name === selectedSavedFilter ? newSavedFilter : f));
+                setMessage('Filter updated successfully');
+                setFilterName('')
+                handleCloseSaveModal();
+                handleConfirmClose();
+            } catch (error) {
+                console.error('Error saving filter:', error);
+            }
+        }
+    };
+
+
+
+    const handleSaveNewFilter = async () => {
+        const newSavedFilter = {
+            name: filterName,
             config: JSON.stringify(selectedFilters.reduce((acc, { filter, selectedOption }) => {
-              if (selectedOption) acc[filter] = selectedOption;
-              return acc;
+                if (selectedOption) acc[filter] = selectedOption;
+                return acc;
             }, {})),
-          };
-      
-          try {
-            await axios.put(`${savedFiltersApi}/${savedFilters.find(f => f.name === selectedSavedFilter).id}`, newSavedFilter, {
-              headers: { Authorization: `Bearer ${user?.token}`, 'Content-Type': 'application/json' },
+        };
+
+        try {
+            const response = await axios.post(savedFiltersApi, newSavedFilter, {
+                headers: { Authorization: `Bearer ${user?.token}`, 'Content-Type': 'application/json' },
             });
-            setSavedFilters(prev => prev.map(f => f.name === selectedSavedFilter ? newSavedFilter : f));
-            setMessage('Filter updated successfully');
+            setSavedFilters(prev => [...prev, newSavedFilter]);
+            setMessage('Search saved successfully');
             setFilterName('')
             handleCloseSaveModal();
-          } catch (error) {
-            console.error('Error saving filter:', error);
-          }
-        }
-      };
-      
-
-
-      const handleSaveNewFilter = async () => {
-        const newSavedFilter = {
-          name: filterName,
-          config: JSON.stringify(selectedFilters.reduce((acc, { filter, selectedOption }) => {
-            if (selectedOption) acc[filter] = selectedOption;
-            return acc;
-          }, {})),
-        };
-      
-        try {
-          const response = await axios.post(savedFiltersApi, newSavedFilter, {
-            headers: { Authorization: `Bearer ${user?.token}`, 'Content-Type': 'application/json' },
-          });
-          setSavedFilters(prev => [...prev, newSavedFilter]);
-          setMessage('Search saved successfully');
-          setFilterName('')
-            handleCloseSaveModal();
+            handleConfirmClose();
         } catch (error) {
-          console.error('Error saving filter:', error);
+            console.error('Error saving filter:', error);
         }
-      };
+    };
 
     const handleSelectSavedFilter = (filterName) => {
         const selectedFilter = savedFilters.find(f => f.name === filterName);
@@ -274,7 +283,7 @@ const AdvancedSearchContainer = ({ onApplyFilters,fetchTickets }) => {
             }, {});
 
             setFilterParams(updatedFilterParams);
-setFilename(filterName)
+            setFilename(filterName)
             onClickApply();
         }
         setSelectedSavedFilter(filterName);
@@ -283,10 +292,14 @@ setFilename(filterName)
 
     const handleDeleteFilter = async () => {
         if (selectedSavedFilter) {
+
+            console.log('Selected Saved Filter:', selectedSavedFilter);
+           
             // Find the filter object that matches the selectedSavedFilter name
             const filterToDelete = savedFilters.find(f => f.name === selectedSavedFilter);
 
-            if (filterToDelete) {
+            if (filterToDelete && filterToDelete.id) {
+                console.log('Preparing to delete filter:', filterToDelete);
                 try {
                     // Send DELETE request using the filter's id
                     const response = await axios.delete(`${savedFiltersApi}/${filterToDelete.id}`, {
@@ -296,15 +309,13 @@ setFilename(filterName)
 
                     if (response.status === 204) { // Check if status code indicates success
                         // Remove the deleted filter from the state
-                        setSavedFilters(prev => {
-                            const updatedFilters = prev.filter(f => f.id !== filterToDelete.id);
-                            return updatedFilters;
-                        });
-
+                        setSavedFilters(prev => prev.filter(f => f.id !== filterToDelete.id));
                         // Clear the selected filter
-                        setSelectedFilters(null);
-                        setMessage('Search deleted successfully')
+                        setSelectedFilters([]);
+                       
                         setSelectedSavedFilter(null);
+                         setMessage('Search deleted successfully')
+                        await handleConfirmClose();
                     } else {
                         console.warn('Unexpected response status:', response.status);
                     }
@@ -319,27 +330,24 @@ setFilename(filterName)
         }
     };
 
-   
+
 
 
     const handleConfirmClose = async () => {
-        if (selectedSavedFilter && hasUnsavedChanges) {
-            // Only handle saving if necessary
-            await handleSaveFilter(); 
-        } else {
+        
             // Clear selected filters and related states
             setSelectedFilters([]);
             setFilterParams({});
+            setAvailableFilters(Object.keys(filterOptions));
             setHasUnsavedChanges(false);
-            setSelectedSavedFilter([])
-        }
-    
+            setSelectedSavedFilter(null)
+        
+
         fetchTickets(); // Ensure to fetch tickets or handle necessary updates after clearing
-    
         setShowCloseModal(false);
         setAdvancedSearchOpen(false);
     };
-    
+
 
 
     const handleOpenSaveModal = () => {
@@ -348,7 +356,7 @@ setFilename(filterName)
     };
 
 
-    
+
 
     return (
         <Container className='border border-3 p-4 my-3'>
@@ -363,51 +371,51 @@ setFilename(filterName)
                     <div className='advanced-search-box mb-3'>
                         <div className='row'>
                             <div className=' d-flex align-items-center justify-content-between'>
-                                
+
                                 <div className=' mb-3 text-end'>
-                                    <Form.Control as="select" value={selectedSavedFilter} onChange={(e) => handleSelectSavedFilter(e.target.value)}>
+                                    <Form.Control as="select" value={selectedSavedFilter || ''} onChange={(e) => handleSelectSavedFilter(e.target.value)}>
                                         <option value="">Select Saved Filter</option>
                                         {savedFilters?.map(({ name }) => (
                                             <option key={name} value={name}>{name}</option>
                                         ))}
                                     </Form.Control>
                                 </div>
-                               
+
 
                             </div>
 
                             <div className='row'>
-    <div className='col-sm-6'>
-        <FilterSelection
-            availableFilters={availableFilters}
-            handleFilterSelect={handleFilterSelect}
-        />
-    </div>
-    <div className='col-sm-6'>
-        {filterOptions && (
-            <SelectedFilters
-                selectedFilters={selectedFilters || []}
-                filterOptions={filterOptions}
-                handleOptionSelect={handleOptionSelect}
-                handleRemoveFilter={handleRemoveFilter}
-                selectedDate={selectedDate}
-                setSelectedDate={setSelectedDate}
-            />
-        )}
-    </div>
-</div>
+                                <div className='col-sm-6'>
+                                    <FilterSelection
+                                        availableFilters={availableFilters}
+                                        handleFilterSelect={handleFilterSelect}
+                                    />
+                                </div>
+                                <div className='col-sm-6'>
+                                    {filterOptions && (
+                                        <SelectedFilters
+                                            selectedFilters={selectedFilters || []}
+                                            filterOptions={filterOptions}
+                                            handleOptionSelect={handleOptionSelect}
+                                            handleRemoveFilter={handleRemoveFilter}
+                                            selectedDate={selectedDate}
+                                            setSelectedDate={setSelectedDate}
+                                        />
+                                    )}
+                                </div>
+                            </div>
 
-<div className="text-end mt-3">
-    {selectedSavedFilter ? (
-        <Button type="button" className="btn btn-danger me-2" onClick={handleDeleteFilter}>
-            <FaTrash /> Delete
-        </Button>
-    ) : (
-        <Button type="button" className="btn btn-primary me-2" onClick={onClickApply}>
-            Apply
-        </Button>
-    )}
-</div>
+                            <div className="text-end mt-3">
+                                {selectedSavedFilter ? (
+                                    <Button type="button" className="btn btn-danger me-2" onClick={handleDeleteFilter}>
+                                        <FaTrash /> Delete
+                                    </Button>
+                                ) : (
+                                    <Button type="button" className="btn btn-primary me-2" onClick={onClickApply}>
+                                        Apply
+                                    </Button>
+                                )}
+                            </div>
 
                         </div>
                     </div>
@@ -420,6 +428,7 @@ setFilename(filterName)
                 filterName={filterName}
                 setFilterName={setFilterName}
                 handleSaveNewFilter={handleSaveNewFilter}
+                handleConfirmClose = {handleConfirmClose}
             />
 
             <CloseModal
@@ -429,7 +438,7 @@ setFilename(filterName)
                 hasUnsavedChanges={hasUnsavedChanges}
                 handleSaveFilter={handleSaveFilter}
                 handleOpenSaveModal={handleOpenSaveModal}
-                selectedSavedFilter = {selectedSavedFilter}
+                selectedSavedFilter={selectedSavedFilter}
             />
 
         </Container>

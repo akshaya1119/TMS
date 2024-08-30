@@ -16,11 +16,17 @@ const UserTable = ({ users, hasPermission }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filtered users based on the search term
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.mobileNo.includes(searchTerm)
-  );
+  const filteredUsers = users.filter(user =>{
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      user.userId.toString().includes(searchTerm) ||  // Include userId in search
+      user.name.toLowerCase().includes(searchLower) ||
+      user.email.toLowerCase().includes(searchLower) ||
+      user.mobileNo.includes(searchTerm) ||
+      user.departmentname.toLowerCase().includes(searchLower) ||
+      user.roleName.toLowerCase().includes(searchLower)
+    );
+});
 
   // Calculate total pages
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);

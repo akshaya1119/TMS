@@ -57,6 +57,12 @@ const ChangePassword = () => {
     setPasswordVisibility((prevVisibility) => ({ ...prevVisibility, [field]: !prevVisibility[field] }));
   };
 
+
+ const handleSubmit = (e) => {
+    e.preventDefault();
+    handleChangePassword();
+  };
+
   // Validate passwords
   const validatePasswords = () => {
     const { currentPassword, newPassword } = passwords;
@@ -70,6 +76,10 @@ const ChangePassword = () => {
 
     if (newPassword.length < 8) {
       newErrors.newPassword = 'New Password must be at least 8 characters long';
+    }
+
+    if (currentPassword === newPassword) {
+      newErrors.newPassword = 'New Password cannot be the same as the Current Password';
     }
 
     setErrors(newErrors);
@@ -124,7 +134,7 @@ const ChangePassword = () => {
   return (
     
       <Container>
-        <Form>
+        <Form onSubmit={handleSubmit}>
           <h1>Password Reset</h1>
           <p>Change your password</p>
           {messages.success && <Alert variant="success">{messages.success}</Alert>}
@@ -153,15 +163,13 @@ const ChangePassword = () => {
           <Row>
             <Col xs={6} className='align-items-start'>
               {/* Change Password Button */}
-              <Button variant="primary" className="px-4 " style={{ backgroundColor: theme }} onClick={handleChangePassword} disabled={loading}>
+              <Button type = 'submit' variant="primary" className="px-4 " style={{ backgroundColor: theme }} disabled={loading}>
                 {loading ? 'Changing Password...' : 'Change Password'}
               </Button>
             </Col>
             <Col xs={6} className='text-end fs-5'>
               {/* Login Password Button */}
-              <Link to="/Login" color="primary" className="px-4" style={{ color: theme }} onClick={handleChangePassword}>
-                Login
-              </Link>
+            
             </Col>
           </Row>
         </Form>
